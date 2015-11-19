@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:beans="http://www.springframework.org/schema/beans"  
+	 xmlns:task="http://www.springframework.org/schema/task"
+     
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+                           http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+                            http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+
+	<context:component-scan base-package="com.hungrybell" />
+	
+
+	<bean
+		class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping" />
+		
+	<context:property-placeholder
+		location="classpath:com/hungrybell/resource/configuration.properties" />
+		
+	<context:property-placeholder
+		location="classpath:com/hungrybell/resource/application.properties" />
+	
+	<!-- Transaction manager -->
+	<tx:annotation-driven transaction-manager="hibernateTransactionManager" />
+	
+	<bean id="contentNegotiationManager"
+		class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<property name="favorPathExtension" value="false" />
+		<property name="mediaTypes">
+        <map>
+            <entry key="json" value="application/json" />
+            <entry key="xml" value="application/xml" />
+       </map>
+    </property>
+	</bean>
+
+	<mvc:annotation-driven
+		content-negotiation-manager="contentNegotiationManager">
+		<mvc:message-converters>
+        <bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
+        <bean class="org.springframework.http.converter.ResourceHttpMessageConverter"/>
+        <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
+    </mvc:message-converters>
+		</mvc:annotation-driven>
+	<mvc:resources mapping="/css/**" location="WEB-INF/css/" />
+
+	<bean id="jspViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<beans:bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<beans:property name="maxUploadSize" value="20000000" />
+	</beans:bean>
+	
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basename"
+			value="classpath:com/hungrybell/resource/messages.properties" />
+		<property name="cacheSeconds" value="3000" />
+	</bean>
+
+	<!-- Database connection -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${database.driver}" />
+		<property name="url" value="${database.url}" />
+		<property name="username" value="${database.user}" />
+		<property name="password" value="${database.password}" />
+	</bean>
+
+	<!-- Session Factory -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="annotatedClasses">
+			<list>
+				<value>com.hungrybell.app.model.Deal</value>
+				<value>com.hungrybell.app.model.MerchantBranch</value>
+				<value>com.hungrybell.app.model.Location</value>
+				<value>com.hungrybell.app.model.DealUserLike</value>
+				<value>com.hungrybell.app.model.DealUserFavourites</value>
+				<value>com.hungrybell.app.model.User</value>
+				<value>com.hungrybell.app.model.DealUserShare</value>
+				<value>com.hungrybell.app.model.DealUserView</value>
+				<value>com.hungrybell.app.model.DealDeliveryType</value>
+				<value>com.hungrybell.app.model.DeliveryType</value>
+				<value>com.hungrybell.app.model.Merchant</value>
+				<value>com.hungrybell.app.model.Merchant</value>
+				<value>com.hungrybell.app.model.OrderDetail</value>
+				<value>com.hungrybell.app.model.DiscountCoupon</value>
+				<value>com.hungrybell.app.model.TrendingTag</value>
+			    <value>com.hungrybell.app.model.DealOrders</value>
+				<value>com.hungrybell.app.model.RecommendedTag</value>
+				<value>com.hungrybell.app.model.NewPayment</value>
+				<value>com.hungrybell.app.model.FeedBack</value>
+				<value>com.hungrybell.app.model.NewOrderDetails</value>
+				<value>com.hungrybell.app.model.Roles</value>
+				
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+				<prop key="hibernate.c3p0.min_size">${c3p0.min_size}</prop>
+				<prop key="hibernate.c3p0.max_size">${c3p0.max_size}</prop>
+				<prop key="hibernate.c3p0.timeout">${c3p0.timeout}</prop>
+				<prop key="hibernate.c3p0.max_statements">${c3p0.max_statements}</prop>
+				<prop key="hibernate.connection.autoReconnect">${hibernate.connection.autoReconnect}</prop>
+				<prop key="hibernate.c3p0.initialPoolSize">${c3p0.initialPoolSize}</prop>
+				<prop key="hibernate.c3p0.acquire_increment">${c3p0.acquire_increment}</prop>
+				<prop key="hibernate.c3p0.numHelperThreads">${c3p0.numHelperThreads}</prop>
+				<prop key="hibernate.c3p0.maxIdleTime">${c3p0.maxIdleTime}</prop>
+				<prop key="hibernate.c3p0.maxIdleTimeExcessConnections">${c3p0.maxIdleTimeExcessConnections}</prop>
+				<prop key="hibernate.c3p0.validate">${c3p0.validate}</prop>
+				<prop key="hibernate.c3p0.maxStatementsPerConnection">${c3p0.maxStatementsPerConnection}</prop>
+				<prop key="hibernate.c3p0.idle_test_periods">${c3p0.idle_test_periods}</prop>
+				<prop key="hibernate.connection.autoReconnect">${connection.autoReconnect}</prop>
+				<prop key="hibernate.temp.use_jdbc_metadata_defaults">${hibernate.temp.use_jdbc_metadata_defaults}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="hibernateTransactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+  <property name="useDefaultSuffixPattern" value="false"/>
+</bean>
+
+<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+    <property name="messageConverters">
+        <list>
+            <ref bean="jsonConverter" />
+            <ref bean="stringHttpMessageConverter" />
+        </list>
+    </property>
+</bean>
+
+<bean id="jsonConverter"
+      class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+    <property name="supportedMediaTypes" value="application/json" />
+</bean>
+
+
+<bean id="stringHttpMessageConverter"
+      class="org.springframework.http.converter.StringHttpMessageConverter">
+    <property name="supportedMediaTypes" value="text/plain"/>
+</bean>
+
+
+<task:annotation-driven/>
+	<bean id="trendingTagController" class="com.hungrybell.app.controller.TrendingTagController"></bean>
+		<bean id="recomTagController" class="com.hungrybell.app.controller.RecomTagController"></bean>
+	
+		<bean id="getResponseFromPAYUController" class="com.hungrybell.app.controller.GetResponseFromPAYUController"></bean>
+		
+		
+</beans>
