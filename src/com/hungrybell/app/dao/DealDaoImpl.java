@@ -330,6 +330,25 @@ public class DealDaoImpl implements DealDao {
 		return null;
 
 	}
+	public List<Deal> getAllTagForUser(Long deal_id) {
+
+		try {
+			Criteria criteria = sessionFactory.getCurrentSession()
+					.createCriteria(Deal.class);
+			criteria.add(Restrictions.eq("id", deal_id));
+			if (!criteria.list().isEmpty()) {
+				return criteria.list();
+			} else {
+				return null;
+			}
+		} catch (Exception ek) {
+			ek.printStackTrace();
+		}
+		return null;
+
+	}
+	
+	
 	
 	public void editMerchantPrice(String merchant_id, String deal_id,String deal_price) 
 	{

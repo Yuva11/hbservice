@@ -12,19 +12,16 @@ import com.hungrybell.app.model.DealOrders;
 import com.hungrybell.app.model.NewOrderDetails;
 import com.hungrybell.app.model.User;
 
-
 @Repository("ordersDao")
-public class OrdersDaoImpl implements OrdersDao
-{
+public class OrdersDaoImpl implements OrdersDao {
 
 	@Autowired
 	private SessionFactory sessionFactory;
 
-	
 	@Override
 	public void saveOrders(String orderid, long dealid, long quantitiy,
-			float amount,String deal_name,String merchant_name) {
-		
+			float amount, String deal_name, String merchant_name) {
+
 		DealOrders dealOrder = new DealOrders();
 		dealOrder.setOrder_id(orderid);
 		dealOrder.setDeal_id(dealid);
@@ -34,12 +31,12 @@ public class OrdersDaoImpl implements OrdersDao
 		dealOrder.setMerchant_name(merchant_name);
 		sessionFactory.getCurrentSession().saveOrUpdate(dealOrder);
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	public void saveOrder(String orderid, long dealid, long quantitiy,
 			float amount) {
-		
+
 		DealOrders dealOrder = new DealOrders();
 		dealOrder.setOrder_id(orderid);
 		dealOrder.setDeal_id(dealid);
@@ -47,20 +44,15 @@ public class OrdersDaoImpl implements OrdersDao
 		dealOrder.setAmount(amount);
 		sessionFactory.getCurrentSession().saveOrUpdate(dealOrder);
 		// TODO Auto-generated method stub
-		
-	}
-	
 
-   public List<DealOrders> getOrder(String orderid)
-   {
-		   try {
-				System.out.println("---ooototo--2--"+orderid);
-	            
-			Criteria criteria = sessionFactory.getCurrentSession().createCriteria(DealOrders.class);
+	}
+
+	public List<DealOrders> getOrder(String orderid) {
+		try {
+			Criteria criteria = sessionFactory.getCurrentSession()
+					.createCriteria(DealOrders.class);
 			criteria.add(Restrictions.eq("order_id", orderid));
-			System.out.println("---ooototo--3--"+orderid);
-			  	
-		    if (!criteria.list().isEmpty()) {
+			if (!criteria.list().isEmpty()) {
 				return criteria.list();
 			} else {
 				return null;
@@ -71,8 +63,21 @@ public class OrdersDaoImpl implements OrdersDao
 		return null;
 
 	}
-   
- 
-	
+
+	public List<DealOrders> getAllOrdersIdForDealName(String orderid) {
+		try {
+			Criteria criteria = sessionFactory.getCurrentSession()
+					.createCriteria(DealOrders.class);
+			criteria.add(Restrictions.eq("order_id", orderid));
+			if (!criteria.list().isEmpty()) {
+				return criteria.list();
+			} else {
+				return null;
+			}
+		} catch (Exception ek) {
+			ek.printStackTrace();
+		}
+		return null;
+	}
 
 }

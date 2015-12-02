@@ -6,8 +6,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,7 @@ import com.hungrybell.app.dao.RecommendedTagDao;
 import com.hungrybell.app.dao.RolesDao;
 import com.hungrybell.app.dao.TrendingTagDao;
 import com.hungrybell.app.dao.UserDao;
+import com.hungrybell.app.date.CalculateDifferenceInDays;
 import com.hungrybell.app.date.CheckAvailabilityDate;
 import com.hungrybell.app.date.GetDateFromSystem;
 import com.hungrybell.app.email.EmailUtility;
@@ -72,6 +75,8 @@ import com.hungrybell.app.vo.response.CheckDiscountCodeResponseVO;
 import com.hungrybell.app.vo.response.CheckDistanceResponseVO;
 import com.hungrybell.app.vo.response.DealVO;
 import com.hungrybell.app.vo.response.DealVOACT;
+import com.hungrybell.app.vo.response.FavTagVo;
+import com.hungrybell.app.vo.response.HomePageFavTagResponseVO;
 import com.hungrybell.app.vo.response.HomePageResponseVO;
 import com.hungrybell.app.vo.response.HomePageVO;
 import com.hungrybell.app.vo.response.LocationVO;
@@ -332,25 +337,21 @@ public class DynamicDataService {
 		if (trendingDeals != null) {
 			List<TagVO> trendingTagList = prepareTagVOListTrending(
 					trendingDeals, locationName, null, null);
-			System.out.println("----------voList----------");
 			homePageVo.setTrending(trendingTagList);
 		}
 		if (nearestList != null) {
 			List<TagVO> trendingTagList1 = prepareTagVOList(nearestList);
-			System.out.println("----------voList----n------");
 			homePageVo.setTrending(trendingTagList1);
 
 		}
 		if (nearestrecoDeals != null) {
 			List<TagVO> trendingTagList13 = prepareTagVOListrecom(nearestrecoDeals);
-			System.out.println("----------voList---r-------");
 			homePageVo.setRecomended(trendingTagList13);
 
 		}
 		if (trendingtag != null) {
 			List<TagVO> trendingTagList1 = prepareTagVOListTrending(null,
 					locationName, trendingtag, null);
-			System.out.println("----------voList----------");
 			homePageVo.setTrending(trendingTagList1);
 		}
 		if (recomtag != null) {
@@ -1097,12 +1098,9 @@ public class DynamicDataService {
 
 	}
 
-	public HomePageResponseVO getAllHomePageData(String latitude,
-			String longitude) {
+	public HomePageResponseVO getAllHomePageData(String latitude,String longitude) {
 		HomePageResponseVO homePageResponseVo = new HomePageResponseVO();
-
 		Status status = new Status();
-
 		if (latitude.isEmpty() && longitude.isEmpty()) {
 			status.setMessage("failure");
 		} else {
@@ -1110,29 +1108,20 @@ public class DynamicDataService {
 				String locationStr1 = getLocation(latitude, longitude);
 				Location location1 = locationDao.getLocation(locationStr1);
 				List<Long> ids = getMerchantBranchForLocation(location1.getId());
-				System.out.print("---oyeee---" + locationStr1);
 				List<Deal> dealsListTotal = dealDao.getAllDealsForLocation(ids);
 				trendingtag = trendingTagDao.getAllTag(location1.getName());
-
-				recomendedtag = recommendedTagDao.getAllTagRecom(location1
-						.getName());
-				homePageResponseVo = prepareHomePageVO(null, null, null, ""
-						+ dealsListTotal.size(), null, trendingtag, null,
-						recomendedtag);
+				recomendedtag = recommendedTagDao.getAllTagRecom(location1.getName());
+				homePageResponseVo = prepareHomePageVO(null, null, null, ""	+ dealsListTotal.size(), null, trendingtag, null,recomendedtag);
 				homePageResponseVo.getResult().setLocation(location1.getName());
 				return homePageResponseVo;
-
 			} catch (Exception ek) {
 				String locationStr = getLocation(latitude, longitude);
 				System.out.print("---oyeee-1--" + locationStr);
-
-				List<MerchantBranch> mb = merchantBranchDao
-						.getMerchantBranchForNearestLocationList();
+				List<MerchantBranch> mb = merchantBranchDao.getMerchantBranchForNearestLocationList();
 				Iterator iterator = null;
 				List<Long> branchidList = new ArrayList<Long>();
 				for (iterator = mb.iterator(); iterator.hasNext();) {
 					MerchantBranch mbo = (MerchantBranch) iterator.next();
-
 					try {
 						double kmDealTag = getNearestLocationDistance(latitude,
 								longitude, mbo.lattitue, mbo.longitude);
@@ -1187,7 +1176,6 @@ public class DynamicDataService {
 			}
 		}
 		return tagsListr;
-
 	}
 
 	private List<TagVO> prepareTagVOListRecom(List<Deal> deals,
@@ -1742,12 +1730,15 @@ public class DynamicDataService {
 	public CheckDiscountCodeResponseVO getCheckDiscountCode(String coupanCode,
 			int merchantbranch_id, double total_order_value, long user_id) {
 		CheckDiscountCodeResponseVO checkDiscountCodeResponseVO = new CheckDiscountCodeResponseVO();
+		GetDateFromSystem getDateFromSystem=new GetDateFromSystem();
+		String systemdate=""+getDateFromSystem.getDateFromSystem();
 		DiscountCoupon checkType = discountCouponDao
 				.getCheckDiscountCodeType(coupanCode);
 
 		// single time check coupon code started
 
 		CheckAvailabilityDate checkAvailabilityDate = new CheckAvailabilityDate();
+		CalculateDifferenceInDays calculateDifferenceInDays=new CalculateDifferenceInDays();
 		if (checkType.getCoupon_type() == 1) {
 			DiscountCoupon coupon = discountCouponDao
 					.getCheckDiscountCodeForMerchant(coupanCode,
@@ -1757,8 +1748,8 @@ public class DynamicDataService {
 			if (orderdiscountcheck == null) {
 				if (coupon != null
 						&& coupon.getMin_order_value() < total_order_value) {
-					if (checkAvailabilityDate.checkAvailability(
-							coupon.getStart_date(), coupon.getEnd_date())) {
+					if (calculateDifferenceInDays.checkAvailability(
+							systemdate, coupon.getEnd_date())) {
 						checkDiscountCodeResponseVO.setStatus("success");
 						checkDiscountCodeResponseVO.setCoupon_code(coupon
 								.getCoupon_code());
@@ -1795,8 +1786,8 @@ public class DynamicDataService {
 							.getCheckDiscountCode(coupanCode);
 					if (coupon1 != null
 							&& coupon1.getMin_order_value() < total_order_value) {
-						if (checkAvailabilityDate.checkAvailability(
-								coupon1.getStart_date(), coupon1.getEnd_date())) {
+						if (calculateDifferenceInDays.checkAvailability(systemdate, coupon1.getEnd_date()))
+						{
 							System.out.println("Second");
 							checkDiscountCodeResponseVO.setStatus("success");
 							checkDiscountCodeResponseVO.setCoupon_code(coupon1
@@ -1821,11 +1812,11 @@ public class DynamicDataService {
 									.getUsages());
 							checkDiscountCodeResponseVO.setMax_usage(coupon1
 									.getMax_usage());
-						} else {
+						} else 
+						{
 							checkDiscountCodeResponseVO
 									.setError("Your Coupon Code is Expired.");
 						}
-
 						try {
 							discountCouponDao.increamentUsageValue(
 									coupon1.getUsages(), coupon1.getId());
@@ -1857,8 +1848,8 @@ public class DynamicDataService {
 			if (couponLimted != null
 					&& couponLimted.getMin_order_value() <= total_order_value
 					&& couponLimted.getUsages() < couponLimted.getMax_usage()) {
-				if (checkAvailabilityDate.checkAvailability(
-						couponLimted.getStart_date(),
+				if (calculateDifferenceInDays.checkAvailability(
+						systemdate,
 						couponLimted.getEnd_date())) {
 
 					checkDiscountCodeResponseVO.setStatus("success");
@@ -1908,8 +1899,8 @@ public class DynamicDataService {
 					.getCheckDiscountCodeUnLimited(coupanCode);
 			if (couponUnLimted != null
 					&& couponUnLimted.getMin_order_value() <= total_order_value) {
-				if (checkAvailabilityDate.checkAvailability(
-						couponUnLimted.getStart_date(),
+				if (calculateDifferenceInDays.checkAvailability(
+						systemdate,
 						couponUnLimted.getEnd_date())) {
 					checkDiscountCodeResponseVO.setStatus("success");
 					checkDiscountCodeResponseVO.setCoupon_code(couponUnLimted
@@ -2172,7 +2163,6 @@ public class DynamicDataService {
 				adminloginstatus.setStatus("success");
 				adminloginstatus.setEmail(adminCheck.getUsername());
 				;
-
 			} else {
 				adminloginstatus.setStatus("failure");
 			}
@@ -2180,8 +2170,84 @@ public class DynamicDataService {
 		} catch (Exception ek) {
 			adminloginstatus.setStatus("failure");
 		}
-
 		return adminloginstatus;
 	}
 
+	ArrayList<FavTagVo> tagsListrall;
+	public HomePageFavTagResponseVO getAllHomePageDataForFavTag(
+			String latitude, String longitude, String user_id) {
+		tagsListrall = new ArrayList<FavTagVo>();
+		HomePageFavTagResponseVO homePageResponseVo = new HomePageFavTagResponseVO();
+		List<FavTagVo> favouritesTags = new ArrayList<FavTagVo>();
+		FavTagVo favTag = null;
+		List<FavTagVo> tagsListr=null;
+		List<Deal> user_tag_names = null;
+		try {
+			List<NewOrderDetails> orderIds = newOrdersDetails.getAllOrdersId(user_id);
+			if (orderIds != null) {
+				for (NewOrderDetails newOrderDetails : orderIds) {
+					List<DealOrders> dealnames = ordersDao.getAllOrdersIdForDealName(newOrderDetails.getOrder_id());
+					if (dealnames != null) {
+						for (DealOrders dealOrders : dealnames) {
+							user_tag_names = new ArrayList<Deal>();
+							user_tag_names = dealDao.getAllTagForUser(dealOrders.getDeal_id());
+							tagsListr = new ArrayList<FavTagVo>();
+							tagsListr = prepareFavTagVO(user_tag_names);
+							for (int i = 0; i < tagsListr.size(); i++) {
+								if (!exists(tagsListr.get(i)))
+									tagsListrall.add(tagsListr.get(i));
+							}
+						}
+					}
+				}
+				homePageResponseVo.setFavourites(tagsListrall);
+			}
+		} catch (Exception ek) {
+			ek.printStackTrace();
+		}
+		return homePageResponseVo;
+	}
+
+	private List<FavTagVo> prepareFavTagVO(List<Deal> favtag) {
+		List<FavTagVo> tagsList = new ArrayList<FavTagVo>();
+
+		if (favtag != null) {
+			HashMap<String, String> nearest = new HashMap();
+			for (Iterator iterator = favtag.iterator(); iterator.hasNext();) {
+				Deal deal = (Deal) iterator.next();
+				String[] dealsTag = deal.getTag().split(",");
+				// System.out.println(dealsTag);
+				for (int i = 0; i < dealsTag.length; i++) {
+					if (nearest.get(dealsTag[i]) == null) {
+						nearest.put(dealsTag[i], dealsTag[i]);
+					}
+				}
+			}
+			Set keys = nearest.keySet();
+			for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+				String tagName = (String) iterator.next();
+				String tagId = nearest.get(tagName);
+				if (!tagName.trim().isEmpty()) {
+					FavTagVo tagVO = new FavTagVo();
+					tagVO.setDeal_id(tagName.trim());
+					tagVO.setTag_name(tagName.trim());
+					tagsList.add(tagVO);
+				}
+			}
+		}
+
+		return tagsList;
+	}
+
+	private boolean exists(FavTagVo tagVO) {
+		for (FavTagVo favTags : tagsListrall) {
+			FavTagVo favouriteTag = favTags;
+			if (favouriteTag.getTag_name().toLowerCase()
+					.equals(tagVO.getTag_name().toLowerCase()))
+				return true;
+		}
+		return false;
+	}
 }
+	
+

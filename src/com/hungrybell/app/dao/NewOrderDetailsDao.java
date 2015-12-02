@@ -22,6 +22,9 @@ public interface NewOrderDetailsDao
     
     
     public NewOrderDetails getUserIdFormNeworderDetails(String order_id_ship);
+    
+    public List<NewOrderDetails> getAllOrdersId(String userid);
+    
 
 	
 	

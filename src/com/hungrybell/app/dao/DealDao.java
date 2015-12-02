@@ -40,6 +40,10 @@ public interface DealDao {
 
 	public void editMerchantPrice(String merchant_id, String deal_id,String deal_price);
 	
+	public List<Deal> getAllTagForUser(Long deal_id);
+	
+	
+	
 
 
 

@@ -162,5 +162,22 @@ public NewOrderDetails getUserIdFormNeworderDetails(String order_id_ship){
 	return null;
 }
 	
+
+public List<NewOrderDetails> getAllOrdersId(String user_id)
+{
+	try {
+	
+		Long user_id1=Long.parseLong(user_id);
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(NewOrderDetails.class);
+	    criteria.add(Restrictions.eq("user_id",user_id1));
+		if (!criteria.list().isEmpty()) {
+			return criteria.list();
+		} else {
+			return null;
+		}
+	} catch (Exception el) {
+	}
+	return null;
+}
 	
 }
