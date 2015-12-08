@@ -39,6 +39,9 @@ public class DiscountCoupon implements Serializable {
 	
 	@Column(name="merchantbranch_id")
 	private long merchantbranch_id;
+	
+	@Column(name="merchant_id")
+	private long merchant_id;
 
 	@Column(name="min_order_value")
 	private double min_order_value;
@@ -52,6 +55,16 @@ public class DiscountCoupon implements Serializable {
 	@Column(name="coupon_type")
 	private int coupon_type;
 	
+	
+	
+	public long getMerchant_id() {
+		return merchant_id;
+	}
+
+	public void setMerchant_id(long merchant_id) {
+		this.merchant_id = merchant_id;
+	}
+
 	public Long getId() {
 		return id;
 	}

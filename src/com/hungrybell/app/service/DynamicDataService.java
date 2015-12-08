@@ -32,6 +32,7 @@ import com.hungrybell.app.dao.DealUserViewDao;
 import com.hungrybell.app.dao.DeliveryTypeDao;
 import com.hungrybell.app.dao.DiscountCouponDao;
 import com.hungrybell.app.dao.FeedBackDao;
+import com.hungrybell.app.dao.KitchenCouponDao;
 import com.hungrybell.app.dao.LocationDao;
 import com.hungrybell.app.dao.MerchantBranchDao;
 import com.hungrybell.app.dao.MerchantDao;
@@ -54,6 +55,7 @@ import com.hungrybell.app.model.DealDeliveryType;
 import com.hungrybell.app.model.DealOrders;
 import com.hungrybell.app.model.DeliveryType;
 import com.hungrybell.app.model.DiscountCoupon;
+import com.hungrybell.app.model.KitchenCoupon;
 import com.hungrybell.app.model.Location;
 import com.hungrybell.app.model.Merchant;
 import com.hungrybell.app.model.MerchantBranch;
@@ -155,6 +157,10 @@ public class DynamicDataService {
 
 	@Autowired
 	private RolesDao rolesDao;
+	
+
+	@Autowired
+	private KitchenCouponDao kitchenCouponDao;
 
 	Location location1 = null;
 
@@ -1727,52 +1733,68 @@ public class DynamicDataService {
 
 	// /******************check discount coupon code****************//
 
-	public CheckDiscountCodeResponseVO getCheckDiscountCode(String coupanCode,
-			int merchantbranch_id, double total_order_value, long user_id) {
+	public CheckDiscountCodeResponseVO getCheckDiscountCode(String coupanCode,int merchantbranch_id, double total_order_value, long user_id) {
 		CheckDiscountCodeResponseVO checkDiscountCodeResponseVO = new CheckDiscountCodeResponseVO();
 		GetDateFromSystem getDateFromSystem=new GetDateFromSystem();
 		String systemdate=""+getDateFromSystem.getDateFromSystem();
-		DiscountCoupon checkType = discountCouponDao
-				.getCheckDiscountCodeType(coupanCode);
-
+		DiscountCoupon checkType = discountCouponDao.getCheckDiscountCodeType(coupanCode);
 		// single time check coupon code started
-
 		CheckAvailabilityDate checkAvailabilityDate = new CheckAvailabilityDate();
 		CalculateDifferenceInDays calculateDifferenceInDays=new CalculateDifferenceInDays();
 		if (checkType.getCoupon_type() == 1) {
-			DiscountCoupon coupon = discountCouponDao
-					.getCheckDiscountCodeForMerchant(coupanCode,
-							merchantbranch_id);
-			NewOrderDetails orderdiscountcheck = newOrdersDetails
-					.getCheckDiscountCodeForUser(coupanCode, user_id);
+			DiscountCoupon coupon = discountCouponDao.getCheckDiscountCodeForMerchant(coupanCode);
+			NewOrderDetails orderdiscountcheck = newOrdersDetails.getCheckDiscountCodeForUser(coupanCode, user_id);
 			if (orderdiscountcheck == null) {
-				if (coupon != null
-						&& coupon.getMin_order_value() < total_order_value) {
-					if (calculateDifferenceInDays.checkAvailability(
-							systemdate, coupon.getEnd_date())) {
+				//checking for selected merchant coupon code 
+				if (coupon.getMerchant_id()>0) 
+				{	
+					DiscountCoupon coupon_id = discountCouponDao.getCouponCodeId(coupanCode);
+				    List<KitchenCoupon> kitchen_coupon_id = kitchenCouponDao.getAllMerchantbranch_id_from_kichenCoupon(coupon_id.getId());
+				 	if(kitchen_coupon_id==null || kitchen_coupon_id.size()>0)
+					{
+					if(coupon.getMin_order_value() < total_order_value)
+					{
+						boolean isOutletCoupon=false;
+					for(KitchenCoupon kitchenCoupon:kitchen_coupon_id) {
+					if(kitchenCoupon.getMerchantbranch_id()==merchantbranch_id)
+					{
+						isOutletCoupon=true;
+						break;
+					}
+					else {
+						isOutletCoupon=false;
+					}
+					}
+					if(!isOutletCoupon){
+						checkDiscountCodeResponseVO.setError("Your coupon code is not valid for this restaurant.");
+					}
+					else if (calculateDifferenceInDays.checkAvailability(systemdate, coupon.getEnd_date()))
+					{
+						checkDiscountCodeResponseVO=new CheckDiscountCodeResponseVO();
 						checkDiscountCodeResponseVO.setStatus("success");
-						checkDiscountCodeResponseVO.setCoupon_code(coupon
-								.getCoupon_code());
-						checkDiscountCodeResponseVO.setPercentage(coupon
-								.getPercentage());
-						checkDiscountCodeResponseVO.setMax_value(coupon
-								.getMax_value());
-						checkDiscountCodeResponseVO.setStart_date(coupon
-								.getStart_date());
-						checkDiscountCodeResponseVO.setEnd_date(coupon
-								.getEnd_date());
+						checkDiscountCodeResponseVO.setCoupon_code(coupon.getCoupon_code());
+						checkDiscountCodeResponseVO.setError(null);
+						checkDiscountCodeResponseVO.setPercentage(coupon.getPercentage());
+						checkDiscountCodeResponseVO.setMax_value(coupon.getMax_value());
+						checkDiscountCodeResponseVO.setStart_date(coupon.getStart_date());
+						checkDiscountCodeResponseVO.setEnd_date(coupon.getEnd_date());
 						checkDiscountCodeResponseVO.setCity(coupon.getCity());
-						checkDiscountCodeResponseVO.setMin_order_value(coupon
-								.getMin_order_value());
-						checkDiscountCodeResponseVO.setMerchantbranch_id(coupon
-								.getMerchantbranch_id());
-						checkDiscountCodeResponseVO
-								.setUsage(coupon.getUsages());
-						checkDiscountCodeResponseVO.setMax_usage(coupon
-								.getMax_usage());
-					} else {
-						checkDiscountCodeResponseVO
-								.setError("Your Coupon Code is Expired.");
+						checkDiscountCodeResponseVO.setMin_order_value(coupon.getMin_order_value());
+						checkDiscountCodeResponseVO.setMerchantbranch_id(coupon.getMerchantbranch_id());
+						checkDiscountCodeResponseVO.setUsage(coupon.getUsages());
+						checkDiscountCodeResponseVO.setMax_usage(coupon	.getMax_usage());
+						return checkDiscountCodeResponseVO;
+					} 
+					else
+					{
+						checkDiscountCodeResponseVO.setError("Your Coupon Code is Expired.");
+					}
+							
+					}
+					else
+					{
+						checkDiscountCodeResponseVO.setError("You have to order for minimum " + coupon.getMin_order_value()+ " value to use this coupon.");
+				
 					}
 					try {
 						discountCouponDao.increamentUsageValue(
@@ -1780,12 +1802,15 @@ public class DynamicDataService {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-				} else {
+					
+					}
+			   }
+				//check coupon code for merchant code is closed
+				//start for hungrybells single type
+				else {
 
-					DiscountCoupon coupon1 = discountCouponDao
-							.getCheckDiscountCode(coupanCode);
-					if (coupon1 != null
-							&& coupon1.getMin_order_value() < total_order_value) {
+					DiscountCoupon coupon1 = discountCouponDao.getCheckDiscountCode(coupanCode);
+					if (coupon1 != null	&& coupon1.getMin_order_value() < total_order_value) {
 						if (calculateDifferenceInDays.checkAvailability(systemdate, coupon1.getEnd_date()))
 						{
 							System.out.println("Second");
@@ -1833,50 +1858,63 @@ public class DynamicDataService {
 				}
 
 			} else {
-				checkDiscountCodeResponseVO
-						.setError("You have already used this coupon code.");
+				checkDiscountCodeResponseVO.setError("You have already used this coupon code.");
 			}
-
 		}
 		// ***********closed coupon code stopped.....//
 		// ***********limited coupon code started.....//
-
-		else if (checkType.getCoupon_type() == 2) {
-
-			DiscountCoupon couponLimted = discountCouponDao
-					.getCheckDiscountCodeLimited(coupanCode);
-			if (couponLimted != null
-					&& couponLimted.getMin_order_value() <= total_order_value
-					&& couponLimted.getUsages() < couponLimted.getMax_usage()) {
-				if (calculateDifferenceInDays.checkAvailability(
-						systemdate,
-						couponLimted.getEnd_date())) {
-
+		else if (checkType.getCoupon_type() == 2) 
+		{
+			DiscountCoupon couponLimted = discountCouponDao.getCheckDiscountCodeLimited(coupanCode);
+			if(couponLimted.getMerchant_id()>0)
+			{//start limited checking for merchant coupon code
+				DiscountCoupon coupon_id = discountCouponDao.getCouponCodeId(coupanCode);
+			    List<KitchenCoupon> kitchen_coupon_id = kitchenCouponDao.getAllMerchantbranch_id_from_kichenCoupon(coupon_id.getId());
+			 	if(kitchen_coupon_id==null || kitchen_coupon_id.size()>0)
+				{
+				if(couponLimted.getMin_order_value() < total_order_value)
+				{
+					boolean isOutletCoupon=false;
+				for(KitchenCoupon kitchenCoupon:kitchen_coupon_id) {
+				if(kitchenCoupon.getMerchantbranch_id()==merchantbranch_id)
+				{
+					isOutletCoupon=true;
+					break;
+				}
+				else {
+					isOutletCoupon=false;
+				}
+				}
+				if(!isOutletCoupon){
+					checkDiscountCodeResponseVO.setError("Your coupon code is not valid for this restaurant.");
+				}
+				else if (calculateDifferenceInDays.checkAvailability(systemdate, couponLimted.getEnd_date()))
+				{
+					checkDiscountCodeResponseVO=new CheckDiscountCodeResponseVO();
 					checkDiscountCodeResponseVO.setStatus("success");
-					checkDiscountCodeResponseVO.setCoupon_code(couponLimted
-							.getCoupon_code());
-					checkDiscountCodeResponseVO.setPercentage(couponLimted
-							.getPercentage());
-					checkDiscountCodeResponseVO.setMax_value(couponLimted
-							.getMax_value());
-					checkDiscountCodeResponseVO.setStart_date(couponLimted
-							.getStart_date());
-					checkDiscountCodeResponseVO.setEnd_date(couponLimted
-							.getEnd_date());
+					checkDiscountCodeResponseVO.setCoupon_code(couponLimted.getCoupon_code());
+					checkDiscountCodeResponseVO.setError(null);
+					checkDiscountCodeResponseVO.setPercentage(couponLimted.getPercentage());
+					checkDiscountCodeResponseVO.setMax_value(couponLimted.getMax_value());
+					checkDiscountCodeResponseVO.setStart_date(couponLimted.getStart_date());
+					checkDiscountCodeResponseVO.setEnd_date(couponLimted.getEnd_date());
 					checkDiscountCodeResponseVO.setCity(couponLimted.getCity());
-					checkDiscountCodeResponseVO.setMin_order_value(couponLimted
-							.getMin_order_value());
-					checkDiscountCodeResponseVO
-							.setMerchantbranch_id(couponLimted
-									.getMerchantbranch_id());
-					checkDiscountCodeResponseVO.setUsage(couponLimted
-							.getUsages());
-					checkDiscountCodeResponseVO.setMax_usage(couponLimted
-							.getMax_usage());
-				} else {
-					checkDiscountCodeResponseVO
-							.setError("Your Coupon Code is Expired.");
-
+					checkDiscountCodeResponseVO.setMin_order_value(couponLimted.getMin_order_value());
+					checkDiscountCodeResponseVO.setMerchantbranch_id(couponLimted.getMerchantbranch_id());
+					checkDiscountCodeResponseVO.setUsage(couponLimted.getUsages());
+					checkDiscountCodeResponseVO.setMax_usage(couponLimted	.getMax_usage());
+					return checkDiscountCodeResponseVO;
+				} 
+				else
+				{
+					checkDiscountCodeResponseVO.setError("Your Coupon Code is Expired.");
+				}
+						
+				}
+				else
+				{
+					checkDiscountCodeResponseVO.setError("You have to order for minimum " + couponLimted.getMin_order_value()+ " value to use this coupon.");
+			
 				}
 				try {
 					discountCouponDao.increamentUsageValue(
@@ -1884,21 +1922,111 @@ public class DynamicDataService {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				
+				}
+			    
+				//close  limited checking for merchant coupon code	
+		  	}
+			else if (couponLimted != null && couponLimted.getMin_order_value() <= total_order_value && couponLimted.getUsages() < couponLimted.getMax_usage()) 
+			{
+				if (calculateDifferenceInDays.checkAvailability(systemdate,couponLimted.getEnd_date())) 
+				{
+					checkDiscountCodeResponseVO.setStatus("success");
+					checkDiscountCodeResponseVO.setCoupon_code(couponLimted.getCoupon_code());
+					checkDiscountCodeResponseVO.setPercentage(couponLimted.getPercentage());
+					checkDiscountCodeResponseVO.setMax_value(couponLimted.getMax_value());
+					checkDiscountCodeResponseVO.setStart_date(couponLimted.getStart_date());
+					checkDiscountCodeResponseVO.setEnd_date(couponLimted.getEnd_date());
+					checkDiscountCodeResponseVO.setCity(couponLimted.getCity());
+					checkDiscountCodeResponseVO.setMin_order_value(couponLimted.getMin_order_value());
+					checkDiscountCodeResponseVO.setMerchantbranch_id(couponLimted.getMerchantbranch_id());
+					checkDiscountCodeResponseVO.setUsage(couponLimted.getUsages());
+					checkDiscountCodeResponseVO.setMax_usage(couponLimted.getMax_usage());
+				}
+				else
+				{
+					checkDiscountCodeResponseVO.setError("Your Coupon Code is Expired.");
 
-			} else {
-				checkDiscountCodeResponseVO
-						.setError("You have order for minimum "
-								+ couponLimted.getMin_order_value()
-								+ " value to use this coupon.");
-			}
+				}
+				try 
+				 {
+					discountCouponDao.increamentUsageValue(couponLimted.getUsages(), couponLimted.getId());
+				 } catch (Exception e) 
+				   {
+					  e.printStackTrace();
+				   }
+
+			} 
+			 else 
+			   {
+				 checkDiscountCodeResponseVO.setError("You have order for minimum "+ couponLimted.getMin_order_value()+ " value to use this coupon.");
+			   }
 		}
+		
 		// **********unlimited coupon code started...........*/
 		else if (checkType.getCoupon_type() == 3) {
 
-			DiscountCoupon couponUnLimted = discountCouponDao
-					.getCheckDiscountCodeUnLimited(coupanCode);
-			if (couponUnLimted != null
-					&& couponUnLimted.getMin_order_value() <= total_order_value) {
+			DiscountCoupon couponUnLimted = discountCouponDao.getCheckDiscountCodeUnLimited(coupanCode);
+			if(couponUnLimted.getMerchant_id()>0)
+			{
+				//start limited checking for merchant coupon code
+				DiscountCoupon coupon_id = discountCouponDao.getCouponCodeId(coupanCode);
+			    List<KitchenCoupon> kitchen_coupon_id = kitchenCouponDao.getAllMerchantbranch_id_from_kichenCoupon(coupon_id.getId());
+			 	if(kitchen_coupon_id==null || kitchen_coupon_id.size()>0)
+				{
+				if(couponUnLimted.getMin_order_value() < total_order_value)
+				{
+					boolean isOutletCoupon=false;
+				for(KitchenCoupon kitchenCoupon:kitchen_coupon_id) {
+				if(kitchenCoupon.getMerchantbranch_id()==merchantbranch_id)
+				{
+					isOutletCoupon=true;
+					break;
+				}
+				else {
+					isOutletCoupon=false;
+				}
+				}
+				if(!isOutletCoupon){
+					checkDiscountCodeResponseVO.setError("Your coupon code is not valid for this restaurant.");
+				}
+				else if (calculateDifferenceInDays.checkAvailability(systemdate, couponUnLimted.getEnd_date()))
+				{
+					checkDiscountCodeResponseVO=new CheckDiscountCodeResponseVO();
+					checkDiscountCodeResponseVO.setStatus("success");
+					checkDiscountCodeResponseVO.setCoupon_code(couponUnLimted.getCoupon_code());
+					checkDiscountCodeResponseVO.setError(null);
+					checkDiscountCodeResponseVO.setPercentage(couponUnLimted.getPercentage());
+					checkDiscountCodeResponseVO.setMax_value(couponUnLimted.getMax_value());
+					checkDiscountCodeResponseVO.setStart_date(couponUnLimted.getStart_date());
+					checkDiscountCodeResponseVO.setEnd_date(couponUnLimted.getEnd_date());
+					checkDiscountCodeResponseVO.setCity(couponUnLimted.getCity());
+					checkDiscountCodeResponseVO.setMin_order_value(couponUnLimted.getMin_order_value());
+					checkDiscountCodeResponseVO.setMerchantbranch_id(couponUnLimted.getMerchantbranch_id());
+					checkDiscountCodeResponseVO.setUsage(couponUnLimted.getUsages());
+					checkDiscountCodeResponseVO.setMax_usage(couponUnLimted	.getMax_usage());
+					return checkDiscountCodeResponseVO;
+				} 
+				else
+				{
+					checkDiscountCodeResponseVO.setError("Your Coupon Code is Expired.");
+				}
+				}
+				else
+				{
+					checkDiscountCodeResponseVO.setError("You have to order for minimum " + couponUnLimted.getMin_order_value()+ " value to use this coupon.");
+				}
+				try {
+					discountCouponDao.increamentUsageValue(
+							couponUnLimted.getUsages(), couponUnLimted.getId());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				}
+				//close  limited checking for merchant coupon code	
+			}
+			else if (couponUnLimted != null	&& couponUnLimted.getMin_order_value() <= total_order_value)
+			{
 				if (calculateDifferenceInDays.checkAvailability(
 						systemdate,
 						couponUnLimted.getEnd_date())) {

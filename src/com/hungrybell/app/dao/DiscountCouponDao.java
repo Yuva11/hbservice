@@ -5,7 +5,9 @@ import com.hungrybell.app.model.DiscountCoupon;
 
 public interface DiscountCouponDao {
 	
-	public DiscountCoupon getCheckDiscountCodeForMerchant(String  coupanCode,long merchantbranch_id);
+	public DiscountCoupon getCheckDiscountCodeForMerchant(String  coupanCode);
+	public DiscountCoupon getCouponCodeId(String  coupanCode);
+	
 	public void increamentUsageValue(long usage,long id);
 	public DiscountCoupon getCheckDiscountCode(String  coupanCode);
 	public DiscountCoupon getCheckDiscountCodeType(String  coupanCode);

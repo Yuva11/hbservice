@@ -18,12 +18,12 @@ public class DiscountCouponDaoImpl implements DiscountCouponDao
 	@Autowired
 	private SessionFactory sessionFactory;
 	
-	public DiscountCoupon getCheckDiscountCodeForMerchant(String coupanCode,long merchantbranch_id){
+	public DiscountCoupon getCheckDiscountCodeForMerchant(String coupanCode){
 		try
 		{
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(DiscountCoupon.class);
 		criteria.add(Restrictions.eq("coupon_code", coupanCode).ignoreCase());
-		criteria.add(Restrictions.eq("merchantbranch_id", merchantbranch_id));
+		//criteria.add(Restrictions.eq("merchantbranch_id", merchantbranch_id));
 		if(!criteria.list().isEmpty()){
 			return (DiscountCoupon)criteria.list().get(0);
 		}else{
@@ -37,6 +37,26 @@ public class DiscountCouponDaoImpl implements DiscountCouponDao
 		}
 		return null;
 	}
+	public DiscountCoupon getCouponCodeId(String coupanCode){
+		try
+		{
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(DiscountCoupon.class);
+		criteria.add(Restrictions.eq("coupon_code", coupanCode).ignoreCase());
+		//criteria.add(Restrictions.eq("merchantbranch_id", merchantbranch_id));
+		if(!criteria.list().isEmpty()){
+			return (DiscountCoupon)criteria.list().get(0);
+		}else{
+			return null;	
+		}
+		}
+		catch(Exception ek)
+		{
+			ek.printStackTrace();
+			
+		}
+		return null;
+	}
+	
 	
 	public DiscountCoupon getCheckDiscountCode(String coupanCode){
 		try

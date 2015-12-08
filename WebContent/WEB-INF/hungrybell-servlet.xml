@@ -111,6 +111,8 @@
 				<value>com.hungrybell.app.model.FeedBack</value>
 				<value>com.hungrybell.app.model.NewOrderDetails</value>
 				<value>com.hungrybell.app.model.Roles</value>
+				<value>com.hungrybell.app.model.KitchenCoupon</value>
+				
 				
 			</list>
 		</property>
