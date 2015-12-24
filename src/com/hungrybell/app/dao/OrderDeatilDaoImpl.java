@@ -112,8 +112,8 @@ public class OrderDeatilDaoImpl implements OrderDeatilDao {
 					.createCriteria(OrderDetail.class);
 			criteria.add(Restrictions.eq("user_id", user_id));
 			criteria.add(Restrictions.eq("feedback_received", "false"));
-			criteria.addOrder(org.hibernate.criterion.Order
-					.desc("order_date_time"));
+			criteria.add(Restrictions.eq("order_status", "Confirmed"));
+			criteria.addOrder(org.hibernate.criterion.Order.desc("order_date_time"));
 			if (!criteria.list().isEmpty()) {
 				return (OrderDetail) criteria.list().get(0);
 			} else {

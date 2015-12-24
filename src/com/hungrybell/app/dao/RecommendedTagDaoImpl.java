@@ -41,12 +41,13 @@ public class RecommendedTagDaoImpl implements RecommendedTagDao {
 
 	}
 
-	public List<RecommendedTag> getAllTagRecom(String locationName) {
+	public List<RecommendedTag> getAllTagRecom(String locationName,int limit) {
 		try
 		{
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(RecommendedTag.class);
 		criteria.add(Restrictions.eq("location_name", locationName));
 
+		if(limit>0)
 		criteria.setMaxResults(12);
 
 		if (!criteria.list().isEmpty() && criteria.list().size() > 0) {

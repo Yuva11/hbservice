@@ -43,6 +43,8 @@ public class SearchController {
 		try {
 			searchPageRequestVO = mapper.readValue(input,
 					SearchPagePageRequestVO.class);
+			System.out.println(""+searchPageRequestVO.getBody().getSearchString());
+
 			return dynamicDataService.getAllDealsForSearchString(
 					searchPageRequestVO.getBody().getSearchString(),
 					searchPageRequestVO.getBody().getLatitude(),

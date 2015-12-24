@@ -1,8 +1,6 @@
 package com.hungrybell.app.vo.response;
 
-import java.io.Serializable;
-
-public class Location  implements Serializable{
+public class Northeast {
 	 private String lng;
 
 	    private String lat;
@@ -32,4 +30,5 @@ public class Location  implements Serializable{
 	    {
 	        return "ClassPojo [lng = "+lng+", lat = "+lat+"]";
 	    }
+
 }

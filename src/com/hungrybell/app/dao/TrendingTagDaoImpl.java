@@ -26,7 +26,11 @@ public class TrendingTagDaoImpl implements TrendingTagDao {
 	public void allDeleteTrendingTag() {
 		TrendingTag tendingtag = new TrendingTag();
 		Session session = sessionFactory.getCurrentSession();
-		Query query = session.createQuery("delete from TrendingTag");
+		Query query = session.createQuery("delete from   TrendingTag");
+		//query .executeUpdate(); 
+		
+		//session.createSQLQuery("truncate table trending_taglist").executeUpdate();
+		
 		query.executeUpdate();
 
 	}
@@ -39,16 +43,17 @@ public class TrendingTagDaoImpl implements TrendingTagDao {
 
 	}
 
-	public List<TrendingTag> getAllTag(String locationName) {
+	public List<TrendingTag> getAllTag(String locationName,int limit) {
 		try
 		{
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(
 				TrendingTag.class);
 		criteria.add(Restrictions.eq("location_name", locationName));
-        criteria.setMaxResults(12);
-        
-
-		if (!criteria.list().isEmpty() && criteria.list().size() > 0) {
+		
+		if(limit>0)
+			criteria.setMaxResults(limit);
+		
+     		if (!criteria.list().isEmpty() && criteria.list().size() > 0) {
 			return criteria.list();
 		} else {
 			return null;

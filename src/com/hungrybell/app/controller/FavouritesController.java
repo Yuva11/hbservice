@@ -33,8 +33,6 @@ public class FavouritesController {
 					.readValue(input, HomePageRequestFavTagVO.class);
 			System.out.println(homePageRequestVO.getBody().getUser_id());
 			homePageResponseVO = dynamicDataService.getAllHomePageDataForFavTag(homePageRequestVO.getBody().getLatitude(),homePageRequestVO.getBody().getLongitude(),homePageRequestVO.getBody().getUser_id());
-	
-			
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

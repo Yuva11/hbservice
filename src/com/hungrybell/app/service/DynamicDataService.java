@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.hungrybell.Encryption.HungryBellsSecretKey;
+import com.hungrybell.app.dao.CityDao;
 import com.hungrybell.app.dao.DealDao;
 import com.hungrybell.app.dao.DealDeliveryTypeDao;
 import com.hungrybell.app.dao.DealUserFavouritesDao;
@@ -50,6 +52,7 @@ import com.hungrybell.app.date.GetDateFromSystem;
 import com.hungrybell.app.email.EmailUtility;
 import com.hungrybell.app.email.EmailUtilityForAdmin;
 import com.hungrybell.app.google.api.GetAddressGoogleApi;
+import com.hungrybell.app.google.api.GetLocationAddressGoogleApi;
 import com.hungrybell.app.model.Deal;
 import com.hungrybell.app.model.DealDeliveryType;
 import com.hungrybell.app.model.DealOrders;
@@ -78,6 +81,7 @@ import com.hungrybell.app.vo.response.CheckDistanceResponseVO;
 import com.hungrybell.app.vo.response.DealVO;
 import com.hungrybell.app.vo.response.DealVOACT;
 import com.hungrybell.app.vo.response.FavTagVo;
+import com.hungrybell.app.vo.response.GoogleLocationResponseVO;
 import com.hungrybell.app.vo.response.HomePageFavTagResponseVO;
 import com.hungrybell.app.vo.response.HomePageResponseVO;
 import com.hungrybell.app.vo.response.HomePageVO;
@@ -158,6 +162,9 @@ public class DynamicDataService {
 	@Autowired
 	private RolesDao rolesDao;
 	
+	@Autowired
+	private CityDao cityDao;
+	
 
 	@Autowired
 	private KitchenCouponDao kitchenCouponDao;
@@ -171,7 +178,6 @@ public class DynamicDataService {
 		HomePageResponseVO homePageResponseVo = null;
 		String locationStr = null;
 		try {
-
 			// delete all trending tag
 			trendingTagDao.allDeleteTrendingTag();
 			List<Deal> alldealsList = dealDao.getAllDeals(); // now all deal
@@ -248,11 +254,9 @@ public class DynamicDataService {
 
 	private HomePageResponseVO getNearestHomePageLocation(String latitude,
 			String longitude) {
-
 		HomePageResponseVO homePageResponseVo = null;
 		String locationStr = getLocation(latitude, longitude);
 		Location location1 = locationDao.getLocation(locationStr);
-
 		List<MerchantBranch> mb = merchantBranchDao
 				.getMerchantBranchForNearestLocationList();
 		Iterator iterator = null;
@@ -296,12 +300,10 @@ public class DynamicDataService {
 							.next();
 					ids.add(merchantBranch.getId());
 				}
-
 			}
 			return ids;
 		}
 		return null;
-
 	}
 
 	private List<String> getMerchantBranchNameForLocaton(Long locationId) {
@@ -405,64 +407,59 @@ public class DynamicDataService {
 		return hvo;
 	}
 
-	public TagDealsListResponseVO getAllDealsForTagName(String tagName,
-			String latitude, String longitude) {
+	public TagDealsListResponseVO getAllDealsForTagName(String tagName,String latitude, String longitude) 
+	{
 		TagDealsListResponseVO tagDealsListResponseVO = null;
 		try {
 			String location = getLocation(latitude, longitude);
-			System.out.println(location);
 			Location location1 = locationDao.getLocation(location);
 			long locationId = location1.getId();
 			List<Long> branchIds = getMerchantBranchForLocation(locationId);
-			List<Deal> dealsListTotal = dealDao
-					.getAllDealsForLocation(branchIds);
-			List<Deal> dealsList = dealDao.getAllDealsForBranchIdsAndTag(
-					branchIds, tagName);
-			tagDealsListResponseVO = prepareTagDealsListVO(dealsList, ""
-					+ dealsListTotal.size(), latitude, longitude);
+			List<Deal> dealsListTotal = dealDao	.getAllDealsForLocation(branchIds);
+			List<Deal> dealsList = dealDao.getAllDealsForBranchIdsAndTag(branchIds, tagName);
+			//tagDealsListResponseVO=new TagDealsListResponseVO();
+			tagDealsListResponseVO = prepareTagDealsListVO(dealsList, ""+dealsListTotal.size(), latitude, longitude);
 			return tagDealsListResponseVO;
-
 		} catch (Exception ek) {// Nearest tagDealList logic
-			List<MerchantBranch> mb = merchantBranchDao
-					.getMerchantBranchForNearestLocationList();
+			List<MerchantBranch> mb = merchantBranchDao.getMerchantBranchForNearestLocationList();
+			tagDealsListResponseVO =new TagDealsListResponseVO();
+			GetAddressGoogleApi getAddressGoogleApi = new GetAddressGoogleApi();
 			if (mb != null) {
 				Iterator iterator = null;
 				List<Long> branchidList = new ArrayList<Long>();
 				for (iterator = mb.iterator(); iterator.hasNext();) {
 					MerchantBranch mbo = (MerchantBranch) iterator.next();
 					try {
-						double kmDealTag = getNearestLocationDistance(latitude,
-								longitude, mbo.lattitue, mbo.longitude);
-
+						double kmDealTag = getNearestLocationDistance(latitude,	longitude, mbo.lattitue, mbo.longitude);
 						if (kmDealTag <= 3.5) {
 							branchidList.add(mbo.getId());
 						}
-
+			/*			String jsonAddress = getAddressGoogleApi.getAddress(latitude, longitude,"" + mbo.getLattitue(), ""+ mbo.getLongitude());
+						CheckDistanceResponseVO json_all_address = null;
+						ObjectMapper mapper = new ObjectMapper();
+						json_all_address = mapper.readValue(jsonAddress,CheckDistanceResponseVO.class);
+						double distanse = json_all_address.getRows()[0].getElements()[0].getDistance().getValue();
+						if (distanse > 5000.0) {
+							branchidList.add(mbo.getId());
+						}
+			*/			
 					} catch (Exception ek1) {
 						ek1.printStackTrace();
 					}
 				}
-				List<Deal> dealsListTotaln = dealDao
-						.getAllDealsForLocation(branchidList);
+				List<Deal> dealsListTotaln = dealDao.getAllDealsForLocation(branchidList);
 				if (dealsListTotaln != null && dealsListTotaln.size() != 0) {
-					List<Deal> dealsListn = dealDao
-							.getNearestAllDealsForBranchIdsAndTag(branchidList,
-									tagName);
+					List<Deal> dealsListn = dealDao	.getNearestAllDealsForBranchIdsAndTag(branchidList,	tagName);
 					if (dealsListn != null) {
-
-						tagDealsListResponseVO = prepareTagDealsListVO(
-								dealsListn, "" + dealsListTotaln.size(),
-								latitude, longitude);
+						tagDealsListResponseVO=prepareTagDealsListVO(dealsListn,"" + dealsListTotaln.size(),latitude, longitude);
 					}
 				}
 			}
 			return tagDealsListResponseVO;
 		}
 	}
-
 	private TagDealsListResponseVO prepareTagDealsListVO(List<Deal> deals,
 			String items, String latitude, String longitude) {
-
 		TagListDealsPageVO tagListDealsPageVO = new TagListDealsPageVO();
 		tagListDealsPageVO.setTotal_food_items(items);
 		List<DealVO> dealVOs = new ArrayList<DealVO>();
@@ -535,34 +532,25 @@ public class DynamicDataService {
 		return tdlrvo;
 	}
 
-	public TagDealsListResponseVO getAllDealsForSearchString(
-			String searchString, String latitude, String longitude) {
+	public TagDealsListResponseVO getAllDealsForSearchString(String searchString, String latitude, String longitude) {
 		TagDealsListResponseVO tagDealsListResponseVO = null;
 		try {
 			String locationStr = getLocation(latitude, longitude);
 			Location location1 = locationDao.getLocation(locationStr);
-			List<Long> branchIds = getMerchantBranchForLocation(location1
-					.getId());
-			List<Deal> dealsListTotal = dealDao
-					.getAllDealsForLocation(branchIds);
-			List<Deal> dealsList = dealDao
-					.getAllDealsForBranchIdsAndSearchString(branchIds,
-							searchString);
-			tagDealsListResponseVO = prepareTagDealsListVO(dealsList, ""
-					+ dealsListTotal.size(), latitude, longitude);
-
+			List<Long> branchIds = getMerchantBranchForLocation(location1.getId());
+			List<Deal> dealsListTotal = dealDao.getAllDealsForLocation(branchIds);
+			List<Deal> dealsList = dealDao.getAllDealsForBranchIdsAndMultipleSearchString(branchIds,searchString);
+			tagDealsListResponseVO = prepareTagDealsListVO(dealsList, ""+ dealsListTotal.size(), latitude, longitude);
 			return tagDealsListResponseVO;
+			
 		} catch (Exception ekl) {// nearest logic for search string (deal)
-			List<MerchantBranch> mb = merchantBranchDao
-					.getMerchantBranchForNearestLocationList();
+			List<MerchantBranch> mb = merchantBranchDao.getMerchantBranchForNearestLocationList();
 			Iterator iterator = null;
 			List<Long> branchidList = new ArrayList<Long>();
-
 			for (iterator = mb.iterator(); iterator.hasNext();) {
 				MerchantBranch mbo = (MerchantBranch) iterator.next();
 				try {
-					double kmDealTag = getNearestLocationDistance(latitude,
-							longitude, mbo.lattitue, mbo.longitude);
+					double kmDealTag = getNearestLocationDistance(latitude,longitude, mbo.lattitue, mbo.longitude);
 					if (kmDealTag <= 3.5) {
 						branchidList.add(mbo.getId());
 					}
@@ -571,29 +559,65 @@ public class DynamicDataService {
 					ek1.printStackTrace();
 				}
 			}
-			List<Deal> dealsListTotaln = dealDao
-					.getAllDealsForLocation(branchidList);
-			List<Deal> dealsListn = dealDao
-					.getAllDealsForBranchIdsAndSearchString(branchidList,
-							searchString);
-			tagDealsListResponseVO = prepareTagDealsListVO(dealsListn, ""
-					+ dealsListTotaln.size(), latitude, longitude);
-
+			List<Deal> dealsListTotaln = dealDao.getAllDealsForLocation(branchidList);
+			List<Deal> dealsListn = dealDao.getAllDealsForBranchIdsAndMultipleSearchString(branchidList,searchString);
+			tagDealsListResponseVO = prepareTagDealsListVO(dealsListn, ""+ dealsListTotaln.size(), latitude, longitude);
 			return tagDealsListResponseVO;
 
 		}
 	}
 
-	public String getLocation(String latitude, String longitude) {
-		HashMap<String, String> hm = new HashMap<String, String>();
-		hm.put("lat", latitude);
-		hm.put("lng", longitude);
-		String URL = "http://service.hungrybells.in:9090/location/currentlocation";
-		String location = HttpRequestor.getHttpResponseWithJsonPayLoad(URL, hm);
+	public String getLocation(String latitude, String longitude) 
+	{
+		String location=null;
+		GetAddressGoogleApi getAddressGoogleApi = new GetAddressGoogleApi();
+		GetLocationAddressGoogleApi getLocationAddressGoogleApi=new GetLocationAddressGoogleApi();
+		try
+		{
+		String address1=getLocationAddressGoogleApi.getLocationAddress(latitude,longitude);
+		GoogleLocationResponseVO google_location = null;
+		ObjectMapper mapper1 = new ObjectMapper();
+		google_location = mapper1.readValue(address1,GoogleLocationResponseVO.class);
+		for(int i=0;i<google_location.getResults()[0].getAddress_components().length;i++){
+			if(google_location.getResults()[0].getAddress_components()[i].getTypes()[0].equals("sublocality_level_1")){
+				location=google_location.getResults()[0].getAddress_components()[i].getShort_name();
+			}
+		}
+		}
+		catch(Exception ek)
+		{
+			ek.printStackTrace();
+		}
 		return location;
-
 	}
 
+	public String getCityName(String latitude, String longitude) 
+	{
+		String city=null;
+		GetAddressGoogleApi getAddressGoogleApi = new GetAddressGoogleApi();
+		GetLocationAddressGoogleApi getLocationAddressGoogleApi=new GetLocationAddressGoogleApi();
+		try
+		{
+		String jsonForCityName=getLocationAddressGoogleApi.getCityName(latitude,longitude);
+		GoogleLocationResponseVO google_location_city_name = null;
+		ObjectMapper mapper1 = new ObjectMapper();
+		google_location_city_name = mapper1.readValue(jsonForCityName,GoogleLocationResponseVO.class);
+		for(int i=0;i<google_location_city_name.getResults()[0].getAddress_components().length;i++){
+			if(google_location_city_name.getResults()[0].getAddress_components()[i].getTypes()[0].equals("locality")){
+				city=google_location_city_name.getResults()[0].getAddress_components()[i].getShort_name();
+			}
+		}
+		}
+		catch(Exception ek)
+		{
+			ek.printStackTrace();
+		}
+		return city;
+	}
+
+	
+	
+	
 	public User getUserId(String device_id, String email) {
 		User user = userDao.checkUser(device_id, email);
 		if (user == null) {
@@ -855,6 +879,15 @@ public class DynamicDataService {
 						orders2.getQuantity(), orders2.getAmount(),
 						orders2.getDeal_name(), orders2.getMerchant_name());
 			}
+			
+			String location_name1=getLocation(""+latitude, ""+longitude);
+			String city_name=getCityName(""+latitude, ""+longitude);
+			long cityId=cityDao.getCityId(city_name);
+			if(!locationDao.locationExists(cityId,location_name1))
+				locationDao.saveNewLocation(latitude,longitude,location_name1,cityId);
+			
+			
+			
 		}
 		status2.setCode(1);
 		status2.setMessage("Order Placed  Successfully");
@@ -1115,8 +1148,8 @@ public class DynamicDataService {
 				Location location1 = locationDao.getLocation(locationStr1);
 				List<Long> ids = getMerchantBranchForLocation(location1.getId());
 				List<Deal> dealsListTotal = dealDao.getAllDealsForLocation(ids);
-				trendingtag = trendingTagDao.getAllTag(location1.getName());
-				recomendedtag = recommendedTagDao.getAllTagRecom(location1.getName());
+				trendingtag = trendingTagDao.getAllTag(location1.getName(),13);
+				recomendedtag = recommendedTagDao.getAllTagRecom(location1.getName(),13);
 				homePageResponseVo = prepareHomePageVO(null, null, null, ""	+ dealsListTotal.size(), null, trendingtag, null,recomendedtag);
 				homePageResponseVo.getResult().setLocation(location1.getName());
 				return homePageResponseVo;
@@ -1138,15 +1171,10 @@ public class DynamicDataService {
 						ek1.printStackTrace();
 					}
 				}
-				List<Deal> dealsListTotal = dealDao
-						.getAllDealsForLocation(branchidList);
-				List<Deal> dealsList = dealDao
-						.getNearestAllDealsForBranchIds(branchidList);
-				List<Deal> recoDealsList = dealDao
-						.getAllRecommendedDealsForLocation(branchidList);
-				homePageResponseVo = prepareHomePageVO(null, recoDealsList,
-						null, "" + dealsListTotal.size(), null, null,
-						dealsList, null);
+				List<Deal> dealsListTotal = dealDao	.getAllDealsForLocation(branchidList);
+				List<Deal> dealsList = dealDao.getNearestAllDealsForBranchIds(branchidList);
+				List<Deal> recoDealsList = dealDao.getAllRecommendedDealsForLocation(branchidList);
+				homePageResponseVo = prepareHomePageVO(null, recoDealsList,	null, "" + dealsListTotal.size(), null, null,dealsList, null);
 				homePageResponseVo.getResult().setLocation(locationStr);
 			}
 		}
@@ -1271,9 +1299,9 @@ public class DynamicDataService {
 				tagVO.setTag_id(tagName);
 				tagVO.setTag_name(tagName);
 				tagsList.add(tagVO);
-				if (count < 15) {
+				/*if (count < 15) {*/
 					trendingTagDao.addTrendingTag(locationName, tagName.trim());
-				}
+				/*}*/
 			}
 			return tagsList;
 
@@ -1337,10 +1365,10 @@ public class DynamicDataService {
 				tagVO.setTag_id(tagName);
 				tagVO.setTag_name(tagName);
 				tagsList.add(tagVO);
-				if (count < 15) {
+				/*if (count < 15) {*/
 					recommendedTagDao.addRecommendedTag(locationName,
 							tagName.trim());
-				}
+				/*}*/
 			}
 			return tagsList;
 
@@ -1551,8 +1579,6 @@ public class DynamicDataService {
 
 			OrderDetail feedBacks = orderDeatilDao.getFeedback(user_id);
 			if (feedBacks != null) {
-				logger.info("---orders-user---id-in condiction---" + user_id);
-
 				status2.setCode(1);
 				status2.setMessage(feedBacks.getFeedback_received());
 				status2.setOrderid(feedBacks.getOrder_id());
@@ -2074,8 +2100,7 @@ public class DynamicDataService {
 	}
 
 	// get Address Current Location and Merchant Location ..
-	public CheckDistanceResponseVO getDistanceDetails(String latitude,
-			String longitude, String merchantbranch_id) {
+	public CheckDistanceResponseVO getDistanceDetails(String latitude,String longitude, String merchantbranch_id) {
 		CheckDistanceResponseVO status = new CheckDistanceResponseVO();
 		try {
 			if (latitude != null && longitude != null) {
@@ -2085,21 +2110,13 @@ public class DynamicDataService {
 				if (fetch_Lot_long != null) {
 					fetch_Lot_long.getLongitude();
 					try {
-						String jsonAddress = getAddressGoogleApi.getAddress(
-								latitude, longitude,
-								"" + fetch_Lot_long.getLattitue(), ""
-										+ fetch_Lot_long.getLongitude());
+						String jsonAddress = getAddressGoogleApi.getAddress(latitude, longitude,"" + fetch_Lot_long.getLattitue(), ""+ fetch_Lot_long.getLongitude());
 						CheckDistanceResponseVO json_all_address = null;
 						ObjectMapper mapper = new ObjectMapper();
-						json_all_address = mapper.readValue(jsonAddress,
-								CheckDistanceResponseVO.class);
-						double distanse = json_all_address.getRows()[0]
-								.getElements()[0].getDistance().getValue();
+						json_all_address = mapper.readValue(jsonAddress,CheckDistanceResponseVO.class);
+						double distanse = json_all_address.getRows()[0].getElements()[0].getDistance().getValue();
 						if (distanse > 5000.0) {
-							System.out.println("---hhh-2---" + distanse);
-
-							status.setStatus("failue");
-
+								status.setStatus("failue");
 						} else {
 							status.setStatus("success");
 							status.setDestination_addresses(json_all_address
@@ -2301,35 +2318,175 @@ public class DynamicDataService {
 		return adminloginstatus;
 	}
 
-	ArrayList<FavTagVo> tagsListrall;
+	
 	public HomePageFavTagResponseVO getAllHomePageDataForFavTag(
 			String latitude, String longitude, String user_id) {
-		tagsListrall = new ArrayList<FavTagVo>();
+		ArrayList<FavTagVo> 	favTagList = new ArrayList<FavTagVo>();
 		HomePageFavTagResponseVO homePageResponseVo = new HomePageFavTagResponseVO();
 		List<FavTagVo> favouritesTags = new ArrayList<FavTagVo>();
 		FavTagVo favTag = null;
-		List<FavTagVo> tagsListr=null;
+		List<FavTagVo> tagsListr = null;
 		List<Deal> user_tag_names = null;
+		HomePageResponseVO homePageResponseVo1 = null;
+		String locationStr = getLocation(latitude, longitude);
 		try {
 			List<NewOrderDetails> orderIds = newOrdersDetails.getAllOrdersId(user_id);
-			if (orderIds != null) {
+			if (orderIds != null && orderIds.size() > 0) {
+				
 				for (NewOrderDetails newOrderDetails : orderIds) {
+					 
+					
 					List<DealOrders> dealnames = ordersDao.getAllOrdersIdForDealName(newOrderDetails.getOrder_id());
-					if (dealnames != null) {
+					if (dealnames != null && dealnames.size() > 0) 
+					{
 						for (DealOrders dealOrders : dealnames) {
 							user_tag_names = new ArrayList<Deal>();
 							user_tag_names = dealDao.getAllTagForUser(dealOrders.getDeal_id());
 							tagsListr = new ArrayList<FavTagVo>();
 							tagsListr = prepareFavTagVO(user_tag_names);
-							for (int i = 0; i < tagsListr.size(); i++) {
-								if (!exists(tagsListr.get(i)))
-									tagsListrall.add(tagsListr.get(i));
+							for (int i = 0; i < tagsListr.size(); i++) 
+							{
+								if (!exists(favTagList, tagsListr.get(i)))
+									favTagList.add(tagsListr.get(i));
+
 							}
+							Location location1 = locationDao.getLocation(locationStr);
+							trendingtag = trendingTagDao.getAllTag(location1.getName(), 0);
+							recomendedtag = recommendedTagDao.getAllTagRecom(
+									location1.getName(), 0);
+							List<String> recommendedTagNames = new<String> ArrayList();
+							if (recomendedtag != null) {
+								for (RecommendedTag recomTag : recomendedtag) {
+									recommendedTagNames.add(recomTag
+											.getTagName_of_location().toLowerCase());
+								}
+							}
+
+							List<String> trendingTagNames = new<String> ArrayList();
+							if (trendingtag != null) {
+								for (TrendingTag trendingTag : trendingtag) {
+									trendingTagNames.add(trendingTag
+											.getTagName_of_location().toLowerCase());
+								}
+							}
+
+							ArrayList<String> allTagsInLocation = new ArrayList<String>();
+							allTagsInLocation.addAll(recommendedTagNames);
+
+							// Remove duplicates & add
+							allTagsInLocation.removeAll(trendingTagNames);
+							allTagsInLocation.addAll(trendingTagNames);
+
+							for (int i = 0; i < favTagList.size(); i++) {
+								FavTagVo favouriteTag = (FavTagVo) favTagList.get(i);
+								if (!allTagsInLocation.contains(favouriteTag.getTag_name()
+										.toLowerCase())) {
+									System.out.println("Not found: location "
+											+ favouriteTag.getTag_name().toLowerCase());
+									favTagList.remove(i);
+									// homePageResponseVo = new HomePageFavTagResponseVO();
+									homePageResponseVo.setFavourites(favTagList);
+								}
+							}
+
+
 						}
 					}
 				}
-				homePageResponseVo.setFavourites(tagsListrall);
+				// this logic for filter data for Favourites tags
+				
 			}
+			///////////////////nearest location tags
+			if( favTagList.size()==0)
+			{	
+				orderIds = newOrdersDetails.getAllOrdersId(user_id);
+				if (orderIds != null) {
+					for (NewOrderDetails newOrderDetails : orderIds) {
+						 homePageResponseVo = new HomePageFavTagResponseVO();
+						
+					//	favTagList =new ArrayList<FavTagVo>();
+						List<DealOrders> dealnames = ordersDao.getAllOrdersIdForDealName(newOrderDetails.getOrder_id());
+						if (dealnames != null) {
+							for (DealOrders dealOrders : dealnames) {
+								user_tag_names = new ArrayList<Deal>();
+								user_tag_names = dealDao.getAllTagForUser(dealOrders.getDeal_id());
+								
+								tagsListr = new ArrayList<FavTagVo>();
+								tagsListr = prepareFavTagVO(user_tag_names);
+								for (int i = 0; i < tagsListr.size(); i++) {
+									if (!exists(favTagList,tagsListr.get(i)))
+										favTagList.add(tagsListr.get(i));
+								}
+							}
+							//
+									}
+					}
+					List<MerchantBranch> mb = merchantBranchDao.getMerchantBranchForNearestLocationList();
+					Iterator iterator = null;
+					List<Long> branchidList = new ArrayList<Long>();
+					for (iterator = mb.iterator(); iterator.hasNext();) {
+						MerchantBranch mbo = (MerchantBranch) iterator.next();
+						try {
+							double kmDealTag = getNearestLocationDistance(latitude,longitude, mbo.lattitue, mbo.longitude);
+							if (kmDealTag <= 3.5) {
+								branchidList.add(mbo.getId());
+							}
+						} catch (Exception ek1) {
+							ek1.printStackTrace();
+						}
+					}
+					List<Deal> dealsListTotal = dealDao	.getAllDealsForLocation(branchidList);
+					List<Deal> dealsList = dealDao.getNearestAllDealsForBranchIds(branchidList);
+					List<Deal> recoDealsList = dealDao.getAllRecommendedDealsForLocation(branchidList);
+					homePageResponseVo1=new HomePageResponseVO();
+					homePageResponseVo1 = prepareHomePageVO(null, recoDealsList,	null, "" + dealsListTotal.size(), null, null,dealsList, null);
+					
+					List<TagVO> nearByRecommendedTags=homePageResponseVo1.getResult().getRecomended();
+					List<TagVO> nearByTrendingTags=homePageResponseVo1.getResult().getTrending();
+								
+					//Remove duplicates & add
+					List<String> allTagsInNearByLocation=new ArrayList<String>();
+					
+					System.out.println("Recommended:");
+					if(nearByRecommendedTags!=null)
+						for(int i=0;i<nearByRecommendedTags.size();i++){
+							allTagsInNearByLocation.add(nearByRecommendedTags.get(i).getTag_name().trim());
+							System.out.println(nearByRecommendedTags.get(i).getTag_name().trim());
+						}
+					
+					System.out.println("Trending");
+					
+					List<String> tempTagList=new ArrayList<String>();
+					if(nearByTrendingTags!=null)
+						for(int i=0;i<nearByRecommendedTags.size();i++){
+							tempTagList.add(nearByTrendingTags.get(i).getTag_name().trim());
+							System.out.println(nearByTrendingTags.get(i).getTag_name().trim());
+						}
+					
+					//Remove duplicates & add trending tags
+					allTagsInNearByLocation.removeAll(tempTagList);
+					allTagsInNearByLocation.addAll(tempTagList);
+					System.out.println("Favourite before checking:");
+					for(int i=0;i<favTagList.size();i++){
+						System.out.println(favTagList.get(i).getTag_name().trim());
+					}
+						
+					for(int i=0;i<favTagList.size();i++){
+						FavTagVo favouriteTag=(FavTagVo) favTagList.get(i);
+						if(!allTagsInNearByLocation.contains(favouriteTag.getTag_name().toLowerCase().trim())){
+							System.out.println("Not found: nearest"+favouriteTag.getTag_name().toLowerCase().trim());
+							favTagList.remove(i);
+						   // favTagList = new ArrayList<FavTagVo>();
+						  //	return favTagList;
+							homePageResponseVo.setFavourites(favTagList);	
+							
+						}
+					}
+
+  			    }
+			}	
+						
+			
 		} catch (Exception ek) {
 			ek.printStackTrace();
 		}
@@ -2367,8 +2524,8 @@ public class DynamicDataService {
 		return tagsList;
 	}
 
-	private boolean exists(FavTagVo tagVO) {
-		for (FavTagVo favTags : tagsListrall) {
+	private boolean exists(ArrayList<FavTagVo> favTagList ,FavTagVo tagVO) {
+		for (FavTagVo favTags : favTagList) {
 			FavTagVo favouriteTag = favTags;
 			if (favouriteTag.getTag_name().toLowerCase()
 					.equals(tagVO.getTag_name().toLowerCase()))

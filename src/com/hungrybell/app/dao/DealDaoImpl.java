@@ -178,10 +178,8 @@ public class DealDaoImpl implements DealDao {
 
 	// search
 	// api(http://testservice.hungrybells.in:9091/HBAppService//searchjson.do)
-	public List<Deal> getAllDealsForBranchIdsAndSearchString(
-			List<Long> branchIds, String searchString) {
-		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(
-				Deal.class);
+	public List<Deal> getAllDealsForBranchIdsAndSearchString(List<Long> branchIds, String searchString) {
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Deal.class);
 		criteria.add(Restrictions.in("merchantbranch_id", branchIds));
 		criteria.add(Restrictions.isNotNull("tag"));
 		criteria.add(Restrictions.eq("status", "PUBLISHED"));
@@ -192,22 +190,101 @@ public class DealDaoImpl implements DealDao {
 		Criterion crit3 = null;
 		Criterion crit4 = null;
 		if (null != searchString1) {
-			crit1 = Restrictions
-					.like("name", searchString1, MatchMode.ANYWHERE);
-			crit2 = Restrictions.like("detail_text", searchString1,
-					MatchMode.ANYWHERE);
+			crit1 = Restrictions.like("name", searchString1, MatchMode.ANYWHERE);
+			crit2 = Restrictions.like("detail_text", searchString1,MatchMode.ANYWHERE);
 			crit3 = Restrictions.like("tag", searchString1, MatchMode.ANYWHERE);
-			crit4 = Restrictions.like("details", searchString1,
-					MatchMode.ANYWHERE);
-
+			crit4 = Restrictions.like("details", searchString1,MatchMode.ANYWHERE);
 		}
 		criteria.add(Restrictions.or(crit1, crit2, crit3, crit4));
-
 		// Return all foods(Show all) from deal list
 		if (!criteria.list().isEmpty()) {
 			return criteria.list();
 		} else {
 			return null;
+		}
+	}
+	
+	public List<Deal> getAllDealsForBranchIdsAndMultipleSearchString(List<Long> branchIds, String searchString) {
+		boolean temp=false;
+		if(searchString!=null && !searchString.isEmpty())
+		{
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Deal.class);
+		criteria.add(Restrictions.in("merchantbranch_id", branchIds));
+		criteria.add(Restrictions.isNotNull("tag"));
+		criteria.add(Restrictions.eq("status", "PUBLISHED"));
+		// search for some string value like pizza, biryani
+		//String searchString1 = searchString.trim();
+		Criterion crit1 = null;
+		Criterion crit2 = null;
+		Criterion crit3 = null;
+		Criterion crit4 = null;
+		String[] dealNames=searchString.split(",");
+		for (int i=0;i<dealNames.length;i++) {
+			dealNames[i]=dealNames[i].trim();
+		}
+		
+		if (searchString!=null){
+			crit1 = Restrictions.in("name", dealNames);
+			crit2 = Restrictions.in("detail_text", dealNames);
+			crit3 = Restrictions.in("tag", dealNames);
+			crit4 = Restrictions.in("details", dealNames);
+		}
+		criteria.add(Restrictions.or(crit1, crit2, crit3, crit4));
+		// Return all foods(Show all) from deal list
+		if (!criteria.list().isEmpty()) {
+			return criteria.list();
+		} else {
+			Criteria criteria1 = sessionFactory.getCurrentSession().createCriteria(Deal.class);
+			criteria1.add(Restrictions.in("merchantbranch_id", branchIds));
+			criteria1.add(Restrictions.isNotNull("tag"));
+			criteria1.add(Restrictions.eq("status", "PUBLISHED"));
+			// search for some string value like pizza, biryani
+			String searchString1 = searchString.trim();
+			Criterion crit5 = null;
+			Criterion crit6 = null;
+			Criterion crit7 = null;
+			Criterion crit8 = null;
+			if (null != searchString1) {
+				crit5 = Restrictions.like("name", searchString1, MatchMode.ANYWHERE);
+				crit6 = Restrictions.like("detail_text", searchString1,MatchMode.ANYWHERE);
+				crit7 = Restrictions.like("tag", searchString1, MatchMode.ANYWHERE);
+				crit8 = Restrictions.like("details", searchString1,MatchMode.ANYWHERE);
+			}
+			criteria1.add(Restrictions.or(crit5, crit6, crit7, crit8));
+			// Return all foods(Show all) from deal list
+			if (!criteria1.list().isEmpty()) {
+				return criteria1.list();
+			} else {
+				
+				return null;
+			}
+		}
+		} else
+		{
+			Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Deal.class);
+			criteria.add(Restrictions.in("merchantbranch_id", branchIds));
+			criteria.add(Restrictions.isNotNull("tag"));
+			criteria.add(Restrictions.eq("status", "PUBLISHED"));
+			// search for some string value like pizza, biryani
+			String searchString1 = searchString.trim();
+			Criterion crit1 = null;
+			Criterion crit2 = null;
+			Criterion crit3 = null;
+			Criterion crit4 = null;
+			if (null != searchString1) {
+				crit1 = Restrictions.like("name", searchString1, MatchMode.ANYWHERE);
+				crit2 = Restrictions.like("detail_text", searchString1,MatchMode.ANYWHERE);
+				crit3 = Restrictions.like("tag", searchString1, MatchMode.ANYWHERE);
+				crit4 = Restrictions.like("details", searchString1,MatchMode.ANYWHERE);
+			}
+			criteria.add(Restrictions.or(crit1, crit2, crit3, crit4));
+			// Return all foods(Show all) from deal list
+			if (!criteria.list().isEmpty()) {
+				return criteria.list();
+			} else {
+				return null;
+			}
+			
 		}
 	}
 
@@ -218,7 +295,7 @@ public class DealDaoImpl implements DealDao {
 			criteria.add(Restrictions.in("merchantbranch_id", branchIds));
 			criteria.add(Restrictions.isNotNull("tag"));
 			criteria.add(Restrictions.eq("status", "PUBLISHED"));
-			criteria.add(Restrictions.like("tag", tagName, MatchMode.ANYWHERE));
+			criteria.add(Restrictions.like("tag", tagName.trim(), MatchMode.ANYWHERE));
 			if (!criteria.list().isEmpty() && criteria.list().size() > 0) {
 				return criteria.list();
 			} else 
@@ -336,6 +413,7 @@ public class DealDaoImpl implements DealDao {
 			Criteria criteria = sessionFactory.getCurrentSession()
 					.createCriteria(Deal.class);
 			criteria.add(Restrictions.eq("id", deal_id));
+			criteria.add(Restrictions.eq("status", "PUBLISHED"));
 			if (!criteria.list().isEmpty()) {
 				return criteria.list();
 			} else {

@@ -9,7 +9,7 @@ public interface TrendingTagDao
 {
 	public void addTrendingTag(String LlocationName,String TagName);
 	public void allDeleteTrendingTag();
-	public List<TrendingTag> getAllTag(String locationName);
+	public List<TrendingTag> getAllTag(String locationName,int limit);
 	
 
 }

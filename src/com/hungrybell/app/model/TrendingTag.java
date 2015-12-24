@@ -20,6 +20,7 @@ public class TrendingTag implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	
+	
 	@Column(name = "id")
 	private Long id;
 	

@@ -10,6 +10,6 @@ public interface RecommendedTagDao
 {
 	public void addRecommendedTag(String LlocationName,String TagName);
 	public void allDeleteRecomTag();
-	public List<RecommendedTag> getAllTagRecom(String locationName);
+	public List<RecommendedTag> getAllTagRecom(String locationName,int limit);
 
 }

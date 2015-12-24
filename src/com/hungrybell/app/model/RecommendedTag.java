@@ -36,17 +36,6 @@ public class RecommendedTag implements Serializable {
 	@Column(name = "longitude")
 	private double longitude;
 	
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-
 	public double getLatitude() {
 		return latitude;
 	}

@@ -18,6 +18,7 @@ public interface DealDao {
 	public List<Deal> getAllDealsForLocation(List<Long> locationIds);
 	public List<Deal> getAllDealsForBranchIdsAndTag(List<Long> branchIds,String tagName);
 	public List<Deal> getAllDealsForBranchIdsAndSearchString(List<Long> branchIds,String searchString);
+	public List<Deal> getAllDealsForBranchIdsAndMultipleSearchString(List<Long> branchIds,String searchString);
 	public List<Deal> getAllRecommendedDealsForLocation(List<Long> locationIds);
 	public Deal getDealForDealId(Long dealId);
 	public Deal updateDealUserActionForDealId(Long dealId,String action);

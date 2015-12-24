@@ -45,11 +45,12 @@ public class TagListDealsController {
 		try {
 			searchPageRequestVO = mapper.readValue(input,
 					SearchPagePageRequestVO.class);
+		
 			return dynamicDataService.getAllDealsForTagName(searchPageRequestVO
 					.getBody().getSearchString(), searchPageRequestVO.getBody()
 					.getLatitude(), searchPageRequestVO.getBody()
 					.getLongitude());
-
+	
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

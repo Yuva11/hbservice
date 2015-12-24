@@ -50,10 +50,7 @@ public class CheckFeedBackController {
 		
 				
 				feedbackRequestVO = mapper.readValue(input,	FeedbackCheckRequestVO.class);
-				System.out.print("----orders-user---id----"+feedbackRequestVO.getUser_id());
-				
 				logger.info("---orders-user---id----"+ feedbackRequestVO.getUser_id());
-				
 				status=dynamicDataService.checkFeedback(feedbackRequestVO.getUser_id());
      			return status;
 
