@@ -15,10 +15,10 @@ import com.hungrybell.app.service.DynamicDataService;
 import com.hungrybell.app.vo.request.HomePageRequestFavTagVO;
 import com.hungrybell.app.vo.response.HomePageFavTagResponseVO;
 
+
 @Controller
 // @EnableWebMvc
 public class FavouritesController {
-
 	@Autowired
 	DynamicDataService dynamicDataService;
 	@RequestMapping(value = "/newHomePagejsonForFavTag.do", method = RequestMethod.POST, consumes = { "application/json" }, headers = "Accept=application/json")
