@@ -106,12 +106,12 @@ public class OrderDeatilDaoImpl implements OrderDeatilDao {
 
 	}
 
-	public OrderDetail getFeedback(Long user_id) {
+	public OrderDetail getLastOrder(Long user_id) {
 		try {
 			Criteria criteria = sessionFactory.getCurrentSession()
 					.createCriteria(OrderDetail.class);
 			criteria.add(Restrictions.eq("user_id", user_id));
-			criteria.add(Restrictions.eq("feedback_received", "false"));
+			//criteria.add(Restrictions.eq("feedback_received", "false"));
 			criteria.add(Restrictions.eq("order_status", "Confirmed"));
 			criteria.addOrder(org.hibernate.criterion.Order.desc("order_date_time"));
 			if (!criteria.list().isEmpty()) {

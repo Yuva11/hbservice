@@ -51,7 +51,7 @@ public class CheckFeedBackController {
 				
 				feedbackRequestVO = mapper.readValue(input,	FeedbackCheckRequestVO.class);
 				logger.info("---orders-user---id----"+ feedbackRequestVO.getUser_id());
-				status=dynamicDataService.checkFeedback(feedbackRequestVO.getUser_id());
+				status=dynamicDataService.isFeedBackPending(feedbackRequestVO.getUser_id());
      			return status;
 
 			} catch (Exception ex) 

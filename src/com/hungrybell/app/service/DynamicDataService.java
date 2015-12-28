@@ -1573,15 +1573,21 @@ public class DynamicDataService {
 
 	static final Logger logger = Logger.getLogger(DynamicDataService.class);
 
-	public Status checkFeedback(Long user_id) {
+	public Status isFeedBackPending(Long user_id) {
 		Status status2 = new Status();
 		{
 
-			OrderDetail feedBacks = orderDeatilDao.getFeedback(user_id);
-			if (feedBacks != null) {
-				status2.setCode(1);
-				status2.setMessage(feedBacks.getFeedback_received());
-				status2.setOrderid(feedBacks.getOrder_id());
+			OrderDetail lastOrder = orderDeatilDao.getLastOrder(user_id);
+			if (lastOrder != null) {
+				if(lastOrder.getFeedback_received().equals("true")){
+					status2.setCode(0);
+					status2.setMessage("false");
+					status2.setOrderid(lastOrder.getOrder_id());
+				}else{
+					status2.setCode(1);
+					status2.setMessage("true");
+					status2.setOrderid(lastOrder.getOrder_id());
+				}
 			}
 			return status2;
 		}

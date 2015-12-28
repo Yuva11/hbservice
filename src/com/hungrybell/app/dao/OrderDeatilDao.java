@@ -18,7 +18,7 @@ public interface OrderDeatilDao {
 
 	
 	public void updateFeedback(String order_id);
-	public OrderDetail getFeedback(Long user_id) ;
+	public OrderDetail getLastOrder(Long user_id) ;
 	public List<OrderDetail> sendTeamSmsEmailOrder(String order_id);
 	
 	public void updateDeliveryTracking(String shipment_id,String townrush_shipment_id,String status,String name,String mobileno);

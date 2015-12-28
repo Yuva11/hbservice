@@ -222,7 +222,6 @@ public class DealDaoImpl implements DealDao {
 		for (int i=0;i<dealNames.length;i++) {
 			dealNames[i]=dealNames[i].trim();
 		}
-		
 		if (searchString!=null){
 			crit1 = Restrictions.in("name", dealNames);
 			crit2 = Restrictions.in("detail_text", dealNames);
@@ -255,7 +254,6 @@ public class DealDaoImpl implements DealDao {
 			if (!criteria1.list().isEmpty()) {
 				return criteria1.list();
 			} else {
-				
 				return null;
 			}
 		}
@@ -284,7 +282,6 @@ public class DealDaoImpl implements DealDao {
 			} else {
 				return null;
 			}
-			
 		}
 	}
 
