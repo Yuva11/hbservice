@@ -618,22 +618,24 @@ public class DynamicDataService {
 	
 	
 	
-	public User getUserId(String device_id, String email) {
+	/*public User getUserId(String device_id, String email) {
 		User user = userDao.checkUser(device_id, email);
 		if (user == null) {
 			return userDao.saveUser(device_id, email);
 		} else {
 			return user;
 		}
-	}
+	}*/
 
-	public User getUserFromEmail(String device_id, String email) {
-		User user = userDao.checkUser(device_id, email);
-		if (user == null) {
-			return userDao.saveUser(device_id, email);
-		} else {
-			return user;
-		}
+	public User getUserByEmail(String email) {
+		User user = userDao.getUserByEmail(email);
+		return user;
+	}
+	
+	
+	public User getUserByDevice(String deviceId) {
+		User user = userDao.getUserByDevice(deviceId);
+		return user;
 	}
 
 	public void saveUser(Long id, String first_name, String email,
@@ -2538,6 +2540,20 @@ public class DynamicDataService {
 				return true;
 		}
 		return false;
+	}
+
+	public User createNewUser(String deviceId, String email) {
+		return userDao.saveUser(deviceId, email);
+	}
+
+	public boolean updateUserEmail(long userId,String email) {
+		userDao.updateEmail(userId,email);
+		return true;
+	}
+
+	public boolean updateUserDevice(Long userId, String deviceId) {
+		userDao.updateDevice(userId,deviceId);	
+		return true;
 	}
 }
 	

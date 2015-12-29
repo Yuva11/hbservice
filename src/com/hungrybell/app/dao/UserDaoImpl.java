@@ -38,8 +38,7 @@ public class UserDaoImpl implements UserDao {
 
 	public User checkUser(String device_id, String email) {
 		if (device_id == null) {
-			Criteria criteria = sessionFactory.getCurrentSession()
-					.createCriteria(User.class);
+			Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
 			criteria.add(Restrictions.eq("email", email));
 			Object obj = criteria.uniqueResult();
 			if (obj != null) {
@@ -59,6 +58,32 @@ public class UserDaoImpl implements UserDao {
 
 		}
 	}
+
+	//Get user by deviceId
+	public User getUserByDevice(String deviceId) {
+		if (deviceId != null && !deviceId.isEmpty()) {
+			Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
+			criteria.add(Restrictions.eq("device_id", deviceId));
+			Object obj = criteria.uniqueResult();
+			return (User) obj;			
+		}
+		return null;
+	}
+	
+	//Get user by email
+	public User getUserByEmail(String email) {
+		if (email != null && !email.isEmpty()) {
+			Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
+			criteria.add(Restrictions.eq("email", email));
+			List userList=criteria.list();
+			if(userList.size()>0){
+				Object obj = userList.get(0);
+				return (User) obj;		
+			}
+		}
+		return null;
+	}
+
 
 	// Add user/
 
@@ -102,6 +127,13 @@ public class UserDaoImpl implements UserDao {
 		return null;
 
 	}
+	
+	
+	
+	
+	
+	
+	
 
 	public User getUserByCustid(long custId) {
 		User user = null;
@@ -220,8 +252,35 @@ public class UserDaoImpl implements UserDao {
 			ek.printStackTrace();
 		}
 		return null;
-
+	}
+	
+	public void updateEmail(long userId,String email) {
+		User user = getUserById(userId);
+		user.setDelete_status(0);
+		user.setEmail(email);
+		sessionFactory.getCurrentSession().saveOrUpdate(user);
+	}
+	
+	public void updateDevice(long userId,String deviceId) {
+		User user = getUserById(userId);
+		user.setDelete_status(0);
+		user.setDevice_id(deviceId);
+		sessionFactory.getCurrentSession().saveOrUpdate(user);
 	}
 
+	
+	public User getUserById(long userId) {
+		try {
+			Criteria criteria = sessionFactory.getCurrentSession()
+					.createCriteria(User.class);
+			criteria.add(Restrictions.eq("id", userId));
+			return (User)criteria.uniqueResult();
+		} catch (Exception ek) {
+			ek.printStackTrace();
+		}
+		return null;
+	}
+
+	
 
 }

@@ -52,37 +52,47 @@ public class NewHomeController {
 		HomePageRequestVO homePageRequestVO = null;
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			homePageRequestVO = mapper
-					.readValue(input, HomePageRequestVO.class);
+			homePageRequestVO = mapper.readValue(input, HomePageRequestVO.class);
 			User user = null;
 			String userId = homePageRequestVO.getBody().getUser_id();
-			String device_id = homePageRequestVO.getBody().getDevice_id();
+			String deviceId = homePageRequestVO.getBody().getDevice_id();
 			String email = homePageRequestVO.getBody().getEmail();
-
-			/*
-			 * if(userId== null || userId.trim().equals("")) {
-			 * if(device_id!=null) { //get user id from user table by devise_id
-			 * user=dynamicDataService.getUserId(device_id,email); }else{ user =
-			 * dynamicDataService.getUserFromEmail(device_id, email); } } else {
-			 * 
-			 * 
-			 * user = new User(); user.setId(new Long(userId));
-			 * user.setDevice_id(device_id); user.setEmail(email);
-			 * 
-			 * 
-			 * }
-			 */if (device_id != null) {
-				// get user id from user table by devise_id
-				user = dynamicDataService.getUserId(device_id, email);
-			} else {
-				user = dynamicDataService.getUserFromEmail(device_id, email);
+			
+			
+			//Check user exist with same device id
+			user=dynamicDataService.getUserByDevice(deviceId);
+			if(user!=null){
+				if(!user.getEmail().equals(email)){
+					dynamicDataService.updateUserEmail(user.getId(),email);
+				}
 			}
+			
+			
+			//Check user exist with same email & update deviceId
+			if(user==null){
+				user=dynamicDataService.getUserByEmail(email);
+			}
+			if(user!=null){
+				if(!user.getDevice_id().equals(deviceId)){
+					dynamicDataService.updateUserDevice(user.getId(),deviceId);
+				}
+			}
+			
+			
+			long userIdValue=0;
+			//Create new user
+			if(user==null && deviceId!=null && !deviceId.isEmpty()){
+				user=dynamicDataService.createNewUser(deviceId,email);
+			}
+			if(user!=null)
+				userIdValue=user.getId();
+			
 			homePageResponseVO = dynamicDataService.getAllHomePageData(
 					homePageRequestVO.getBody().getLatitude(),
 					homePageRequestVO.getBody().getLongitude());
-			homePageResponseVO.setUser_id(user.getId());
+			homePageResponseVO.setUser_id(userIdValue);
 			homePageResponseVO.setDevice_id(user.getDevice_id());
-
+		
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
