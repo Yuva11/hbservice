@@ -24,7 +24,7 @@ public class RecomTagController {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			GetDateFromSystem getDateFromSystem=new GetDateFromSystem();
-			logger.info("trending service executed "+getDateFromSystem.getDateFromSystem());
+			logger.info("recommanded service executed "+getDateFromSystem.getDateFromSystem());
 			
 			HomePageResponseVO hresVO=  dynamicDataService.getAllDealsForLocationRecomTag();
 	

@@ -161,10 +161,9 @@ public class DynamicDataService {
 
 	@Autowired
 	private RolesDao rolesDao;
-	
+
 	@Autowired
 	private CityDao cityDao;
-	
 
 	@Autowired
 	private KitchenCouponDao kitchenCouponDao;
@@ -244,10 +243,19 @@ public class DynamicDataService {
 					}
 				}
 			}
+			try
+			{
+			EmailUtility emailUtility=new EmailUtility();
+			emailUtility.emailSendOurTeamForTrendingRecom("ramzi@getwise.in");
+			emailUtility.emailSendOurTeamForTrendingRecom("manoharan@getwise.in");
+			emailUtility.emailSendOurTeamForTrendingRecom("bheem@getwise.in");
+			}catch(Exception e)
+			{
+				e.printStackTrace();
+			}
 			return homePageResponseVo;
 		} catch (Exception ek) {
 			ek.printStackTrace();
-
 			return homePageResponseVo;
 		}
 	}
@@ -407,22 +415,26 @@ public class DynamicDataService {
 		return hvo;
 	}
 
-	public TagDealsListResponseVO getAllDealsForTagName(String tagName,String latitude, String longitude) 
-	{
+	public TagDealsListResponseVO getAllDealsForTagName(String tagName,
+			String latitude, String longitude) {
 		TagDealsListResponseVO tagDealsListResponseVO = null;
 		try {
 			String location = getLocation(latitude, longitude);
 			Location location1 = locationDao.getLocation(location);
 			long locationId = location1.getId();
 			List<Long> branchIds = getMerchantBranchForLocation(locationId);
-			List<Deal> dealsListTotal = dealDao	.getAllDealsForLocation(branchIds);
-			List<Deal> dealsList = dealDao.getAllDealsForBranchIdsAndTag(branchIds, tagName);
-			//tagDealsListResponseVO=new TagDealsListResponseVO();
-			tagDealsListResponseVO = prepareTagDealsListVO(dealsList, ""+dealsListTotal.size(), latitude, longitude);
+			List<Deal> dealsListTotal = dealDao
+					.getAllDealsForLocation(branchIds);
+			List<Deal> dealsList = dealDao.getAllDealsForBranchIdsAndTag(
+					branchIds, tagName);
+			// tagDealsListResponseVO=new TagDealsListResponseVO();
+			tagDealsListResponseVO = prepareTagDealsListVO(dealsList, ""
+					+ dealsListTotal.size(), latitude, longitude);
 			return tagDealsListResponseVO;
 		} catch (Exception ek) {// Nearest tagDealList logic
-			List<MerchantBranch> mb = merchantBranchDao.getMerchantBranchForNearestLocationList();
-			tagDealsListResponseVO =new TagDealsListResponseVO();
+			List<MerchantBranch> mb = merchantBranchDao
+					.getMerchantBranchForNearestLocationList();
+			tagDealsListResponseVO = new TagDealsListResponseVO();
 			GetAddressGoogleApi getAddressGoogleApi = new GetAddressGoogleApi();
 			if (mb != null) {
 				Iterator iterator = null;
@@ -430,34 +442,46 @@ public class DynamicDataService {
 				for (iterator = mb.iterator(); iterator.hasNext();) {
 					MerchantBranch mbo = (MerchantBranch) iterator.next();
 					try {
-						double kmDealTag = getNearestLocationDistance(latitude,	longitude, mbo.lattitue, mbo.longitude);
+						double kmDealTag = getNearestLocationDistance(latitude,
+								longitude, mbo.lattitue, mbo.longitude);
 						if (kmDealTag <= 3.5) {
 							branchidList.add(mbo.getId());
 						}
-			/*			String jsonAddress = getAddressGoogleApi.getAddress(latitude, longitude,"" + mbo.getLattitue(), ""+ mbo.getLongitude());
-						CheckDistanceResponseVO json_all_address = null;
-						ObjectMapper mapper = new ObjectMapper();
-						json_all_address = mapper.readValue(jsonAddress,CheckDistanceResponseVO.class);
-						double distanse = json_all_address.getRows()[0].getElements()[0].getDistance().getValue();
-						if (distanse > 5000.0) {
-							branchidList.add(mbo.getId());
-						}
-			*/			
+						/*
+						 * String jsonAddress =
+						 * getAddressGoogleApi.getAddress(latitude, longitude,""
+						 * + mbo.getLattitue(), ""+ mbo.getLongitude());
+						 * CheckDistanceResponseVO json_all_address = null;
+						 * ObjectMapper mapper = new ObjectMapper();
+						 * json_all_address =
+						 * mapper.readValue(jsonAddress,CheckDistanceResponseVO
+						 * .class); double distanse =
+						 * json_all_address.getRows()[
+						 * 0].getElements()[0].getDistance().getValue(); if
+						 * (distanse > 5000.0) { branchidList.add(mbo.getId());
+						 * }
+						 */
 					} catch (Exception ek1) {
 						ek1.printStackTrace();
 					}
 				}
-				List<Deal> dealsListTotaln = dealDao.getAllDealsForLocation(branchidList);
+				List<Deal> dealsListTotaln = dealDao
+						.getAllDealsForLocation(branchidList);
 				if (dealsListTotaln != null && dealsListTotaln.size() != 0) {
-					List<Deal> dealsListn = dealDao	.getNearestAllDealsForBranchIdsAndTag(branchidList,	tagName);
+					List<Deal> dealsListn = dealDao
+							.getNearestAllDealsForBranchIdsAndTag(branchidList,
+									tagName);
 					if (dealsListn != null) {
-						tagDealsListResponseVO=prepareTagDealsListVO(dealsListn,"" + dealsListTotaln.size(),latitude, longitude);
+						tagDealsListResponseVO = prepareTagDealsListVO(
+								dealsListn, "" + dealsListTotaln.size(),
+								latitude, longitude);
 					}
 				}
 			}
 			return tagDealsListResponseVO;
 		}
 	}
+
 	private TagDealsListResponseVO prepareTagDealsListVO(List<Deal> deals,
 			String items, String latitude, String longitude) {
 		TagListDealsPageVO tagListDealsPageVO = new TagListDealsPageVO();
@@ -532,25 +556,33 @@ public class DynamicDataService {
 		return tdlrvo;
 	}
 
-	public TagDealsListResponseVO getAllDealsForSearchString(String searchString, String latitude, String longitude) {
+	public TagDealsListResponseVO getAllDealsForSearchString(
+			String searchString, String latitude, String longitude) {
 		TagDealsListResponseVO tagDealsListResponseVO = null;
 		try {
 			String locationStr = getLocation(latitude, longitude);
 			Location location1 = locationDao.getLocation(locationStr);
-			List<Long> branchIds = getMerchantBranchForLocation(location1.getId());
-			List<Deal> dealsListTotal = dealDao.getAllDealsForLocation(branchIds);
-			List<Deal> dealsList = dealDao.getAllDealsForBranchIdsAndMultipleSearchString(branchIds,searchString);
-			tagDealsListResponseVO = prepareTagDealsListVO(dealsList, ""+ dealsListTotal.size(), latitude, longitude);
+			List<Long> branchIds = getMerchantBranchForLocation(location1
+					.getId());
+			List<Deal> dealsListTotal = dealDao
+					.getAllDealsForLocation(branchIds);
+			List<Deal> dealsList = dealDao
+					.getAllDealsForBranchIdsAndMultipleSearchString(branchIds,
+							searchString);
+			tagDealsListResponseVO = prepareTagDealsListVO(dealsList, ""
+					+ dealsListTotal.size(), latitude, longitude);
 			return tagDealsListResponseVO;
-			
+
 		} catch (Exception ekl) {// nearest logic for search string (deal)
-			List<MerchantBranch> mb = merchantBranchDao.getMerchantBranchForNearestLocationList();
+			List<MerchantBranch> mb = merchantBranchDao
+					.getMerchantBranchForNearestLocationList();
 			Iterator iterator = null;
 			List<Long> branchidList = new ArrayList<Long>();
 			for (iterator = mb.iterator(); iterator.hasNext();) {
 				MerchantBranch mbo = (MerchantBranch) iterator.next();
 				try {
-					double kmDealTag = getNearestLocationDistance(latitude,longitude, mbo.lattitue, mbo.longitude);
+					double kmDealTag = getNearestLocationDistance(latitude,
+							longitude, mbo.lattitue, mbo.longitude);
 					if (kmDealTag <= 3.5) {
 						branchidList.add(mbo.getId());
 					}
@@ -559,80 +591,80 @@ public class DynamicDataService {
 					ek1.printStackTrace();
 				}
 			}
-			List<Deal> dealsListTotaln = dealDao.getAllDealsForLocation(branchidList);
-			List<Deal> dealsListn = dealDao.getAllDealsForBranchIdsAndMultipleSearchString(branchidList,searchString);
-			tagDealsListResponseVO = prepareTagDealsListVO(dealsListn, ""+ dealsListTotaln.size(), latitude, longitude);
+			List<Deal> dealsListTotaln = dealDao
+					.getAllDealsForLocation(branchidList);
+			List<Deal> dealsListn = dealDao
+					.getAllDealsForBranchIdsAndMultipleSearchString(
+							branchidList, searchString);
+			tagDealsListResponseVO = prepareTagDealsListVO(dealsListn, ""
+					+ dealsListTotaln.size(), latitude, longitude);
 			return tagDealsListResponseVO;
 
 		}
 	}
 
-	public String getLocation(String latitude, String longitude) 
-	{
-		String location=null;
+	public String getLocation(String latitude, String longitude) {
+		String location = null;
 		GetAddressGoogleApi getAddressGoogleApi = new GetAddressGoogleApi();
-		GetLocationAddressGoogleApi getLocationAddressGoogleApi=new GetLocationAddressGoogleApi();
-		try
-		{
-		String address1=getLocationAddressGoogleApi.getLocationAddress(latitude,longitude);
-		GoogleLocationResponseVO google_location = null;
-		ObjectMapper mapper1 = new ObjectMapper();
-		google_location = mapper1.readValue(address1,GoogleLocationResponseVO.class);
-		for(int i=0;i<google_location.getResults()[0].getAddress_components().length;i++){
-			if(google_location.getResults()[0].getAddress_components()[i].getTypes()[0].equals("sublocality_level_1")){
-				location=google_location.getResults()[0].getAddress_components()[i].getShort_name();
+		GetLocationAddressGoogleApi getLocationAddressGoogleApi = new GetLocationAddressGoogleApi();
+		try {
+			String address1 = getLocationAddressGoogleApi.getLocationAddress(
+					latitude, longitude);
+			GoogleLocationResponseVO google_location = null;
+			ObjectMapper mapper1 = new ObjectMapper();
+			google_location = mapper1.readValue(address1,
+					GoogleLocationResponseVO.class);
+			for (int i = 0; i < google_location.getResults()[0]
+					.getAddress_components().length; i++) {
+				if (google_location.getResults()[0].getAddress_components()[i]
+						.getTypes()[0].equals("sublocality_level_1")) {
+					location = google_location.getResults()[0]
+							.getAddress_components()[i].getShort_name();
+				}
 			}
-		}
-		}
-		catch(Exception ek)
-		{
+		} catch (Exception ek) {
 			ek.printStackTrace();
 		}
 		return location;
 	}
 
-	public String getCityName(String latitude, String longitude) 
-	{
-		String city=null;
+	public String getCityName(String latitude, String longitude) {
+		String city = null;
 		GetAddressGoogleApi getAddressGoogleApi = new GetAddressGoogleApi();
-		GetLocationAddressGoogleApi getLocationAddressGoogleApi=new GetLocationAddressGoogleApi();
-		try
-		{
-		String jsonForCityName=getLocationAddressGoogleApi.getCityName(latitude,longitude);
-		GoogleLocationResponseVO google_location_city_name = null;
-		ObjectMapper mapper1 = new ObjectMapper();
-		google_location_city_name = mapper1.readValue(jsonForCityName,GoogleLocationResponseVO.class);
-		for(int i=0;i<google_location_city_name.getResults()[0].getAddress_components().length;i++){
-			if(google_location_city_name.getResults()[0].getAddress_components()[i].getTypes()[0].equals("locality")){
-				city=google_location_city_name.getResults()[0].getAddress_components()[i].getShort_name();
+		GetLocationAddressGoogleApi getLocationAddressGoogleApi = new GetLocationAddressGoogleApi();
+		try {
+			String jsonForCityName = getLocationAddressGoogleApi.getCityName(
+					latitude, longitude);
+			GoogleLocationResponseVO google_location_city_name = null;
+			ObjectMapper mapper1 = new ObjectMapper();
+			google_location_city_name = mapper1.readValue(jsonForCityName,
+					GoogleLocationResponseVO.class);
+			for (int i = 0; i < google_location_city_name.getResults()[0]
+					.getAddress_components().length; i++) {
+				if (google_location_city_name.getResults()[0]
+						.getAddress_components()[i].getTypes()[0]
+						.equals("locality")) {
+					city = google_location_city_name.getResults()[0]
+							.getAddress_components()[i].getShort_name();
+				}
 			}
-		}
-		}
-		catch(Exception ek)
-		{
+		} catch (Exception ek) {
 			ek.printStackTrace();
 		}
 		return city;
 	}
 
-	
-	
-	
-	/*public User getUserId(String device_id, String email) {
-		User user = userDao.checkUser(device_id, email);
-		if (user == null) {
-			return userDao.saveUser(device_id, email);
-		} else {
-			return user;
-		}
-	}*/
+	/*
+	 * public User getUserId(String device_id, String email) { User user =
+	 * userDao.checkUser(device_id, email); if (user == null) { return
+	 * userDao.saveUser(device_id, email); } else { return user; } }
+	 */
 
 	public User getUserByEmail(String email) {
 		User user = userDao.getUserByEmail(email);
 		return user;
 	}
-	
-	
+
 	public User getUserByDevice(String deviceId) {
 		User user = userDao.getUserByDevice(deviceId);
 		return user;
@@ -881,15 +913,14 @@ public class DynamicDataService {
 						orders2.getQuantity(), orders2.getAmount(),
 						orders2.getDeal_name(), orders2.getMerchant_name());
 			}
-			
-			String location_name1=getLocation(""+latitude, ""+longitude);
-			String city_name=getCityName(""+latitude, ""+longitude);
-			long cityId=cityDao.getCityId(city_name);
-			if(!locationDao.locationExists(cityId,location_name1))
-				locationDao.saveNewLocation(latitude,longitude,location_name1,cityId);
-			
-			
-			
+
+			String location_name1 = getLocation("" + latitude, "" + longitude);
+			String city_name = getCityName("" + latitude, "" + longitude);
+			long cityId = cityDao.getCityId(city_name);
+			if (!locationDao.locationExists(cityId, location_name1))
+				locationDao.saveNewLocation(latitude, longitude,
+						location_name1, cityId);
+
 		}
 		status2.setCode(1);
 		status2.setMessage("Order Placed  Successfully");
@@ -1139,7 +1170,8 @@ public class DynamicDataService {
 
 	}
 
-	public HomePageResponseVO getAllHomePageData(String latitude,String longitude) {
+	public HomePageResponseVO getAllHomePageData(String latitude,
+			String longitude) {
 		HomePageResponseVO homePageResponseVo = new HomePageResponseVO();
 		Status status = new Status();
 		if (latitude.isEmpty() && longitude.isEmpty()) {
@@ -1150,15 +1182,19 @@ public class DynamicDataService {
 				Location location1 = locationDao.getLocation(locationStr1);
 				List<Long> ids = getMerchantBranchForLocation(location1.getId());
 				List<Deal> dealsListTotal = dealDao.getAllDealsForLocation(ids);
-				trendingtag = trendingTagDao.getAllTag(location1.getName(),13);
-				recomendedtag = recommendedTagDao.getAllTagRecom(location1.getName(),13);
-				homePageResponseVo = prepareHomePageVO(null, null, null, ""	+ dealsListTotal.size(), null, trendingtag, null,recomendedtag);
+				trendingtag = trendingTagDao.getAllTag(location1.getName(), 13);
+				recomendedtag = recommendedTagDao.getAllTagRecom(
+						location1.getName(), 13);
+				homePageResponseVo = prepareHomePageVO(null, null, null, ""
+						+ dealsListTotal.size(), null, trendingtag, null,
+						recomendedtag);
 				homePageResponseVo.getResult().setLocation(location1.getName());
 				return homePageResponseVo;
 			} catch (Exception ek) {
 				String locationStr = getLocation(latitude, longitude);
 				System.out.print("---oyeee-1--" + locationStr);
-				List<MerchantBranch> mb = merchantBranchDao.getMerchantBranchForNearestLocationList();
+				List<MerchantBranch> mb = merchantBranchDao
+						.getMerchantBranchForNearestLocationList();
 				Iterator iterator = null;
 				List<Long> branchidList = new ArrayList<Long>();
 				for (iterator = mb.iterator(); iterator.hasNext();) {
@@ -1173,10 +1209,15 @@ public class DynamicDataService {
 						ek1.printStackTrace();
 					}
 				}
-				List<Deal> dealsListTotal = dealDao	.getAllDealsForLocation(branchidList);
-				List<Deal> dealsList = dealDao.getNearestAllDealsForBranchIds(branchidList);
-				List<Deal> recoDealsList = dealDao.getAllRecommendedDealsForLocation(branchidList);
-				homePageResponseVo = prepareHomePageVO(null, recoDealsList,	null, "" + dealsListTotal.size(), null, null,dealsList, null);
+				List<Deal> dealsListTotal = dealDao
+						.getAllDealsForLocation(branchidList);
+				List<Deal> dealsList = dealDao
+						.getNearestAllDealsForBranchIds(branchidList);
+				List<Deal> recoDealsList = dealDao
+						.getAllRecommendedDealsForLocation(branchidList);
+				homePageResponseVo = prepareHomePageVO(null, recoDealsList,
+						null, "" + dealsListTotal.size(), null, null,
+						dealsList, null);
 				homePageResponseVo.getResult().setLocation(locationStr);
 			}
 		}
@@ -1301,9 +1342,10 @@ public class DynamicDataService {
 				tagVO.setTag_id(tagName);
 				tagVO.setTag_name(tagName);
 				tagsList.add(tagVO);
-				/*if (count < 15) {*/
-					trendingTagDao.addTrendingTag(locationName, tagName.trim());
-				/*}*/
+				/* if (count < 15) { */
+				trendingTagDao.addTrendingTag(locationName, tagName.trim());
+				/* } */
+			
 			}
 			return tagsList;
 
@@ -1367,14 +1409,18 @@ public class DynamicDataService {
 				tagVO.setTag_id(tagName);
 				tagVO.setTag_name(tagName);
 				tagsList.add(tagVO);
-				/*if (count < 15) {*/
-					recommendedTagDao.addRecommendedTag(locationName,
-							tagName.trim());
-				/*}*/
+				/* if (count < 15) { */
+				recommendedTagDao.addRecommendedTag(locationName,
+						tagName.trim());
+				/* } */
+			
+
 			}
+			
 			return tagsList;
 
 		}
+		
 		return null;
 	}
 
@@ -1581,11 +1627,11 @@ public class DynamicDataService {
 
 			OrderDetail lastOrder = orderDeatilDao.getLastOrder(user_id);
 			if (lastOrder != null) {
-				if(lastOrder.getFeedback_received().equals("true")){
+				if (lastOrder.getFeedback_received().equals("true")) {
 					status2.setCode(0);
 					status2.setMessage("false");
 					status2.setOrderid(lastOrder.getOrder_id());
-				}else{
+				} else {
 					status2.setCode(1);
 					status2.setMessage("true");
 					status2.setOrderid(lastOrder.getOrder_id());
@@ -1767,86 +1813,105 @@ public class DynamicDataService {
 
 	// /******************check discount coupon code****************//
 
-	public CheckDiscountCodeResponseVO getCheckDiscountCode(String coupanCode,int merchantbranch_id, double total_order_value, long user_id) {
+	public CheckDiscountCodeResponseVO getCheckDiscountCode(String coupanCode,
+			int merchantbranch_id, double total_order_value, long user_id) {
 		CheckDiscountCodeResponseVO checkDiscountCodeResponseVO = new CheckDiscountCodeResponseVO();
-		GetDateFromSystem getDateFromSystem=new GetDateFromSystem();
-		String systemdate=""+getDateFromSystem.getDateFromSystem();
-		DiscountCoupon checkType = discountCouponDao.getCheckDiscountCodeType(coupanCode);
+		GetDateFromSystem getDateFromSystem = new GetDateFromSystem();
+		String systemdate = "" + getDateFromSystem.getDateFromSystem();
+		DiscountCoupon checkType = discountCouponDao
+				.getCheckDiscountCodeType(coupanCode);
 		// single time check coupon code started
 		CheckAvailabilityDate checkAvailabilityDate = new CheckAvailabilityDate();
-		CalculateDifferenceInDays calculateDifferenceInDays=new CalculateDifferenceInDays();
+		CalculateDifferenceInDays calculateDifferenceInDays = new CalculateDifferenceInDays();
 		if (checkType.getCoupon_type() == 1) {
-			DiscountCoupon coupon = discountCouponDao.getCheckDiscountCodeForMerchant(coupanCode);
-			NewOrderDetails orderdiscountcheck = newOrdersDetails.getCheckDiscountCodeForUser(coupanCode, user_id);
+			DiscountCoupon coupon = discountCouponDao
+					.getCheckDiscountCodeForMerchant(coupanCode);
+			NewOrderDetails orderdiscountcheck = newOrdersDetails
+					.getCheckDiscountCodeForUser(coupanCode, user_id);
 			if (orderdiscountcheck == null) {
-				//checking for selected merchant coupon code 
-				if (coupon.getMerchant_id()>0) 
-				{	
-					DiscountCoupon coupon_id = discountCouponDao.getCouponCodeId(coupanCode);
-				    List<KitchenCoupon> kitchen_coupon_id = kitchenCouponDao.getAllMerchantbranch_id_from_kichenCoupon(coupon_id.getId());
-				 	if(kitchen_coupon_id==null || kitchen_coupon_id.size()>0)
-					{
-					if(coupon.getMin_order_value() < total_order_value)
-					{
-						boolean isOutletCoupon=false;
-					for(KitchenCoupon kitchenCoupon:kitchen_coupon_id) {
-					if(kitchenCoupon.getMerchantbranch_id()==merchantbranch_id)
-					{
-						isOutletCoupon=true;
-						break;
+				// checking for selected merchant coupon code
+				if (coupon.getMerchant_id() > 0) {
+					DiscountCoupon coupon_id = discountCouponDao
+							.getCouponCodeId(coupanCode);
+					List<KitchenCoupon> kitchen_coupon_id = kitchenCouponDao
+							.getAllMerchantbranch_id_from_kichenCoupon(coupon_id
+									.getId());
+					if (kitchen_coupon_id == null
+							|| kitchen_coupon_id.size() > 0) {
+						if (coupon.getMin_order_value() < total_order_value) {
+							boolean isOutletCoupon = false;
+							for (KitchenCoupon kitchenCoupon : kitchen_coupon_id) {
+								if (kitchenCoupon.getMerchantbranch_id() == merchantbranch_id) {
+									isOutletCoupon = true;
+									break;
+								} else {
+									isOutletCoupon = false;
+								}
+							}
+							if (!isOutletCoupon) {
+								checkDiscountCodeResponseVO
+										.setError("Your coupon code is not valid for this restaurant.");
+							} else if (calculateDifferenceInDays
+									.checkAvailability(systemdate,
+											coupon.getEnd_date())) {
+								checkDiscountCodeResponseVO = new CheckDiscountCodeResponseVO();
+								checkDiscountCodeResponseVO
+										.setStatus("success");
+								checkDiscountCodeResponseVO
+										.setCoupon_code(coupon.getCoupon_code());
+								checkDiscountCodeResponseVO.setError(null);
+								checkDiscountCodeResponseVO
+										.setPercentage(coupon.getPercentage());
+								checkDiscountCodeResponseVO.setMax_value(coupon
+										.getMax_value());
+								checkDiscountCodeResponseVO
+										.setStart_date(coupon.getStart_date());
+								checkDiscountCodeResponseVO.setEnd_date(coupon
+										.getEnd_date());
+								checkDiscountCodeResponseVO.setCity(coupon
+										.getCity());
+								checkDiscountCodeResponseVO
+										.setMin_order_value(coupon
+												.getMin_order_value());
+								checkDiscountCodeResponseVO
+										.setMerchantbranch_id(coupon
+												.getMerchantbranch_id());
+								checkDiscountCodeResponseVO.setUsage(coupon
+										.getUsages());
+								checkDiscountCodeResponseVO.setMax_usage(coupon
+										.getMax_usage());
+								return checkDiscountCodeResponseVO;
+							} else {
+								checkDiscountCodeResponseVO
+										.setError("Your Coupon Code is Expired.");
+							}
+
+						} else {
+							checkDiscountCodeResponseVO
+									.setError("You have to order for minimum "
+											+ coupon.getMin_order_value()
+											+ " value to use this coupon.");
+
+						}
+						try {
+							discountCouponDao.increamentUsageValue(
+									coupon.getUsages(), coupon.getId());
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
 					}
-					else {
-						isOutletCoupon=false;
-					}
-					}
-					if(!isOutletCoupon){
-						checkDiscountCodeResponseVO.setError("Your coupon code is not valid for this restaurant.");
-					}
-					else if (calculateDifferenceInDays.checkAvailability(systemdate, coupon.getEnd_date()))
-					{
-						checkDiscountCodeResponseVO=new CheckDiscountCodeResponseVO();
-						checkDiscountCodeResponseVO.setStatus("success");
-						checkDiscountCodeResponseVO.setCoupon_code(coupon.getCoupon_code());
-						checkDiscountCodeResponseVO.setError(null);
-						checkDiscountCodeResponseVO.setPercentage(coupon.getPercentage());
-						checkDiscountCodeResponseVO.setMax_value(coupon.getMax_value());
-						checkDiscountCodeResponseVO.setStart_date(coupon.getStart_date());
-						checkDiscountCodeResponseVO.setEnd_date(coupon.getEnd_date());
-						checkDiscountCodeResponseVO.setCity(coupon.getCity());
-						checkDiscountCodeResponseVO.setMin_order_value(coupon.getMin_order_value());
-						checkDiscountCodeResponseVO.setMerchantbranch_id(coupon.getMerchantbranch_id());
-						checkDiscountCodeResponseVO.setUsage(coupon.getUsages());
-						checkDiscountCodeResponseVO.setMax_usage(coupon	.getMax_usage());
-						return checkDiscountCodeResponseVO;
-					} 
-					else
-					{
-						checkDiscountCodeResponseVO.setError("Your Coupon Code is Expired.");
-					}
-							
-					}
-					else
-					{
-						checkDiscountCodeResponseVO.setError("You have to order for minimum " + coupon.getMin_order_value()+ " value to use this coupon.");
-				
-					}
-					try {
-						discountCouponDao.increamentUsageValue(
-								coupon.getUsages(), coupon.getId());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					
-					}
-			   }
-				//check coupon code for merchant code is closed
-				//start for hungrybells single type
+				}
+				// check coupon code for merchant code is closed
+				// start for hungrybells single type
 				else {
 
-					DiscountCoupon coupon1 = discountCouponDao.getCheckDiscountCode(coupanCode);
-					if (coupon1 != null	&& coupon1.getMin_order_value() < total_order_value) {
-						if (calculateDifferenceInDays.checkAvailability(systemdate, coupon1.getEnd_date()))
-						{
+					DiscountCoupon coupon1 = discountCouponDao
+							.getCheckDiscountCode(coupanCode);
+					if (coupon1 != null
+							&& coupon1.getMin_order_value() < total_order_value) {
+						if (calculateDifferenceInDays.checkAvailability(
+								systemdate, coupon1.getEnd_date())) {
 							System.out.println("Second");
 							checkDiscountCodeResponseVO.setStatus("success");
 							checkDiscountCodeResponseVO.setCoupon_code(coupon1
@@ -1871,8 +1936,7 @@ public class DynamicDataService {
 									.getUsages());
 							checkDiscountCodeResponseVO.setMax_usage(coupon1
 									.getMax_usage());
-						} else 
-						{
+						} else {
 							checkDiscountCodeResponseVO
 									.setError("Your Coupon Code is Expired.");
 						}
@@ -1892,63 +1956,117 @@ public class DynamicDataService {
 				}
 
 			} else {
-				checkDiscountCodeResponseVO.setError("You have already used this coupon code.");
+				checkDiscountCodeResponseVO
+						.setError("You have already used this coupon code.");
 			}
 		}
 		// ***********closed coupon code stopped.....//
 		// ***********limited coupon code started.....//
-		else if (checkType.getCoupon_type() == 2) 
-		{
-			DiscountCoupon couponLimted = discountCouponDao.getCheckDiscountCodeLimited(coupanCode);
-			if(couponLimted.getMerchant_id()>0)
-			{//start limited checking for merchant coupon code
-				DiscountCoupon coupon_id = discountCouponDao.getCouponCodeId(coupanCode);
-			    List<KitchenCoupon> kitchen_coupon_id = kitchenCouponDao.getAllMerchantbranch_id_from_kichenCoupon(coupon_id.getId());
-			 	if(kitchen_coupon_id==null || kitchen_coupon_id.size()>0)
-				{
-				if(couponLimted.getMin_order_value() < total_order_value)
-				{
-					boolean isOutletCoupon=false;
-				for(KitchenCoupon kitchenCoupon:kitchen_coupon_id) {
-				if(kitchenCoupon.getMerchantbranch_id()==merchantbranch_id)
-				{
-					isOutletCoupon=true;
-					break;
+		else if (checkType.getCoupon_type() == 2) {
+			DiscountCoupon couponLimted = discountCouponDao
+					.getCheckDiscountCodeLimited(coupanCode);
+			if (couponLimted.getMerchant_id() > 0) {// start limited checking
+													// for merchant coupon code
+				DiscountCoupon coupon_id = discountCouponDao
+						.getCouponCodeId(coupanCode);
+				List<KitchenCoupon> kitchen_coupon_id = kitchenCouponDao
+						.getAllMerchantbranch_id_from_kichenCoupon(coupon_id
+								.getId());
+				if (kitchen_coupon_id == null || kitchen_coupon_id.size() > 0) {
+					if (couponLimted.getMin_order_value() < total_order_value) {
+						boolean isOutletCoupon = false;
+						for (KitchenCoupon kitchenCoupon : kitchen_coupon_id) {
+							if (kitchenCoupon.getMerchantbranch_id() == merchantbranch_id) {
+								isOutletCoupon = true;
+								break;
+							} else {
+								isOutletCoupon = false;
+							}
+						}
+						if (!isOutletCoupon) {
+							checkDiscountCodeResponseVO
+									.setError("Your coupon code is not valid for this restaurant.");
+						} else if (calculateDifferenceInDays.checkAvailability(
+								systemdate, couponLimted.getEnd_date())) {
+							checkDiscountCodeResponseVO = new CheckDiscountCodeResponseVO();
+							checkDiscountCodeResponseVO.setStatus("success");
+							checkDiscountCodeResponseVO
+									.setCoupon_code(couponLimted
+											.getCoupon_code());
+							checkDiscountCodeResponseVO.setError(null);
+							checkDiscountCodeResponseVO
+									.setPercentage(couponLimted.getPercentage());
+							checkDiscountCodeResponseVO
+									.setMax_value(couponLimted.getMax_value());
+							checkDiscountCodeResponseVO
+									.setStart_date(couponLimted.getStart_date());
+							checkDiscountCodeResponseVO
+									.setEnd_date(couponLimted.getEnd_date());
+							checkDiscountCodeResponseVO.setCity(couponLimted
+									.getCity());
+							checkDiscountCodeResponseVO
+									.setMin_order_value(couponLimted
+											.getMin_order_value());
+							checkDiscountCodeResponseVO
+									.setMerchantbranch_id(couponLimted
+											.getMerchantbranch_id());
+							checkDiscountCodeResponseVO.setUsage(couponLimted
+									.getUsages());
+							checkDiscountCodeResponseVO
+									.setMax_usage(couponLimted.getMax_usage());
+							return checkDiscountCodeResponseVO;
+						} else {
+							checkDiscountCodeResponseVO
+									.setError("Your Coupon Code is Expired.");
+						}
+
+					} else {
+						checkDiscountCodeResponseVO
+								.setError("You have to order for minimum "
+										+ couponLimted.getMin_order_value()
+										+ " value to use this coupon.");
+
+					}
+					try {
+						discountCouponDao.increamentUsageValue(
+								couponLimted.getUsages(), couponLimted.getId());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
 				}
-				else {
-					isOutletCoupon=false;
-				}
-				}
-				if(!isOutletCoupon){
-					checkDiscountCodeResponseVO.setError("Your coupon code is not valid for this restaurant.");
-				}
-				else if (calculateDifferenceInDays.checkAvailability(systemdate, couponLimted.getEnd_date()))
-				{
-					checkDiscountCodeResponseVO=new CheckDiscountCodeResponseVO();
+
+				// close limited checking for merchant coupon code
+			} else if (couponLimted != null
+					&& couponLimted.getMin_order_value() <= total_order_value
+					&& couponLimted.getUsages() < couponLimted.getMax_usage()) {
+				if (calculateDifferenceInDays.checkAvailability(systemdate,
+						couponLimted.getEnd_date())) {
 					checkDiscountCodeResponseVO.setStatus("success");
-					checkDiscountCodeResponseVO.setCoupon_code(couponLimted.getCoupon_code());
-					checkDiscountCodeResponseVO.setError(null);
-					checkDiscountCodeResponseVO.setPercentage(couponLimted.getPercentage());
-					checkDiscountCodeResponseVO.setMax_value(couponLimted.getMax_value());
-					checkDiscountCodeResponseVO.setStart_date(couponLimted.getStart_date());
-					checkDiscountCodeResponseVO.setEnd_date(couponLimted.getEnd_date());
+					checkDiscountCodeResponseVO.setCoupon_code(couponLimted
+							.getCoupon_code());
+					checkDiscountCodeResponseVO.setPercentage(couponLimted
+							.getPercentage());
+					checkDiscountCodeResponseVO.setMax_value(couponLimted
+							.getMax_value());
+					checkDiscountCodeResponseVO.setStart_date(couponLimted
+							.getStart_date());
+					checkDiscountCodeResponseVO.setEnd_date(couponLimted
+							.getEnd_date());
 					checkDiscountCodeResponseVO.setCity(couponLimted.getCity());
-					checkDiscountCodeResponseVO.setMin_order_value(couponLimted.getMin_order_value());
-					checkDiscountCodeResponseVO.setMerchantbranch_id(couponLimted.getMerchantbranch_id());
-					checkDiscountCodeResponseVO.setUsage(couponLimted.getUsages());
-					checkDiscountCodeResponseVO.setMax_usage(couponLimted	.getMax_usage());
-					return checkDiscountCodeResponseVO;
-				} 
-				else
-				{
-					checkDiscountCodeResponseVO.setError("Your Coupon Code is Expired.");
-				}
-						
-				}
-				else
-				{
-					checkDiscountCodeResponseVO.setError("You have to order for minimum " + couponLimted.getMin_order_value()+ " value to use this coupon.");
-			
+					checkDiscountCodeResponseVO.setMin_order_value(couponLimted
+							.getMin_order_value());
+					checkDiscountCodeResponseVO
+							.setMerchantbranch_id(couponLimted
+									.getMerchantbranch_id());
+					checkDiscountCodeResponseVO.setUsage(couponLimted
+							.getUsages());
+					checkDiscountCodeResponseVO.setMax_usage(couponLimted
+							.getMax_usage());
+				} else {
+					checkDiscountCodeResponseVO
+							.setError("Your Coupon Code is Expired.");
+
 				}
 				try {
 					discountCouponDao.increamentUsageValue(
@@ -1956,113 +2074,94 @@ public class DynamicDataService {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
-				}
-			    
-				//close  limited checking for merchant coupon code	
-		  	}
-			else if (couponLimted != null && couponLimted.getMin_order_value() <= total_order_value && couponLimted.getUsages() < couponLimted.getMax_usage()) 
-			{
-				if (calculateDifferenceInDays.checkAvailability(systemdate,couponLimted.getEnd_date())) 
-				{
-					checkDiscountCodeResponseVO.setStatus("success");
-					checkDiscountCodeResponseVO.setCoupon_code(couponLimted.getCoupon_code());
-					checkDiscountCodeResponseVO.setPercentage(couponLimted.getPercentage());
-					checkDiscountCodeResponseVO.setMax_value(couponLimted.getMax_value());
-					checkDiscountCodeResponseVO.setStart_date(couponLimted.getStart_date());
-					checkDiscountCodeResponseVO.setEnd_date(couponLimted.getEnd_date());
-					checkDiscountCodeResponseVO.setCity(couponLimted.getCity());
-					checkDiscountCodeResponseVO.setMin_order_value(couponLimted.getMin_order_value());
-					checkDiscountCodeResponseVO.setMerchantbranch_id(couponLimted.getMerchantbranch_id());
-					checkDiscountCodeResponseVO.setUsage(couponLimted.getUsages());
-					checkDiscountCodeResponseVO.setMax_usage(couponLimted.getMax_usage());
-				}
-				else
-				{
-					checkDiscountCodeResponseVO.setError("Your Coupon Code is Expired.");
 
-				}
-				try 
-				 {
-					discountCouponDao.increamentUsageValue(couponLimted.getUsages(), couponLimted.getId());
-				 } catch (Exception e) 
-				   {
-					  e.printStackTrace();
-				   }
-
-			} 
-			 else 
-			   {
-				 checkDiscountCodeResponseVO.setError("You have order for minimum "+ couponLimted.getMin_order_value()+ " value to use this coupon.");
-			   }
+			} else {
+				checkDiscountCodeResponseVO
+						.setError("You have order for minimum "
+								+ couponLimted.getMin_order_value()
+								+ " value to use this coupon.");
+			}
 		}
-		
+
 		// **********unlimited coupon code started...........*/
 		else if (checkType.getCoupon_type() == 3) {
 
-			DiscountCoupon couponUnLimted = discountCouponDao.getCheckDiscountCodeUnLimited(coupanCode);
-			if(couponUnLimted.getMerchant_id()>0)
-			{
-				//start limited checking for merchant coupon code
-				DiscountCoupon coupon_id = discountCouponDao.getCouponCodeId(coupanCode);
-			    List<KitchenCoupon> kitchen_coupon_id = kitchenCouponDao.getAllMerchantbranch_id_from_kichenCoupon(coupon_id.getId());
-			 	if(kitchen_coupon_id==null || kitchen_coupon_id.size()>0)
-				{
-				if(couponUnLimted.getMin_order_value() < total_order_value)
-				{
-					boolean isOutletCoupon=false;
-				for(KitchenCoupon kitchenCoupon:kitchen_coupon_id) {
-				if(kitchenCoupon.getMerchantbranch_id()==merchantbranch_id)
-				{
-					isOutletCoupon=true;
-					break;
+			DiscountCoupon couponUnLimted = discountCouponDao
+					.getCheckDiscountCodeUnLimited(coupanCode);
+			if (couponUnLimted.getMerchant_id() > 0) {
+				// start limited checking for merchant coupon code
+				DiscountCoupon coupon_id = discountCouponDao
+						.getCouponCodeId(coupanCode);
+				List<KitchenCoupon> kitchen_coupon_id = kitchenCouponDao
+						.getAllMerchantbranch_id_from_kichenCoupon(coupon_id
+								.getId());
+				if (kitchen_coupon_id == null || kitchen_coupon_id.size() > 0) {
+					if (couponUnLimted.getMin_order_value() < total_order_value) {
+						boolean isOutletCoupon = false;
+						for (KitchenCoupon kitchenCoupon : kitchen_coupon_id) {
+							if (kitchenCoupon.getMerchantbranch_id() == merchantbranch_id) {
+								isOutletCoupon = true;
+								break;
+							} else {
+								isOutletCoupon = false;
+							}
+						}
+						if (!isOutletCoupon) {
+							checkDiscountCodeResponseVO
+									.setError("Your coupon code is not valid for this restaurant.");
+						} else if (calculateDifferenceInDays.checkAvailability(
+								systemdate, couponUnLimted.getEnd_date())) {
+							checkDiscountCodeResponseVO = new CheckDiscountCodeResponseVO();
+							checkDiscountCodeResponseVO.setStatus("success");
+							checkDiscountCodeResponseVO
+									.setCoupon_code(couponUnLimted
+											.getCoupon_code());
+							checkDiscountCodeResponseVO.setError(null);
+							checkDiscountCodeResponseVO
+									.setPercentage(couponUnLimted
+											.getPercentage());
+							checkDiscountCodeResponseVO
+									.setMax_value(couponUnLimted.getMax_value());
+							checkDiscountCodeResponseVO
+									.setStart_date(couponUnLimted
+											.getStart_date());
+							checkDiscountCodeResponseVO
+									.setEnd_date(couponUnLimted.getEnd_date());
+							checkDiscountCodeResponseVO.setCity(couponUnLimted
+									.getCity());
+							checkDiscountCodeResponseVO
+									.setMin_order_value(couponUnLimted
+											.getMin_order_value());
+							checkDiscountCodeResponseVO
+									.setMerchantbranch_id(couponUnLimted
+											.getMerchantbranch_id());
+							checkDiscountCodeResponseVO.setUsage(couponUnLimted
+									.getUsages());
+							checkDiscountCodeResponseVO
+									.setMax_usage(couponUnLimted.getMax_usage());
+							return checkDiscountCodeResponseVO;
+						} else {
+							checkDiscountCodeResponseVO
+									.setError("Your Coupon Code is Expired.");
+						}
+					} else {
+						checkDiscountCodeResponseVO
+								.setError("You have to order for minimum "
+										+ couponUnLimted.getMin_order_value()
+										+ " value to use this coupon.");
+					}
+					try {
+						discountCouponDao.increamentUsageValue(
+								couponUnLimted.getUsages(),
+								couponUnLimted.getId());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
-				else {
-					isOutletCoupon=false;
-				}
-				}
-				if(!isOutletCoupon){
-					checkDiscountCodeResponseVO.setError("Your coupon code is not valid for this restaurant.");
-				}
-				else if (calculateDifferenceInDays.checkAvailability(systemdate, couponUnLimted.getEnd_date()))
-				{
-					checkDiscountCodeResponseVO=new CheckDiscountCodeResponseVO();
-					checkDiscountCodeResponseVO.setStatus("success");
-					checkDiscountCodeResponseVO.setCoupon_code(couponUnLimted.getCoupon_code());
-					checkDiscountCodeResponseVO.setError(null);
-					checkDiscountCodeResponseVO.setPercentage(couponUnLimted.getPercentage());
-					checkDiscountCodeResponseVO.setMax_value(couponUnLimted.getMax_value());
-					checkDiscountCodeResponseVO.setStart_date(couponUnLimted.getStart_date());
-					checkDiscountCodeResponseVO.setEnd_date(couponUnLimted.getEnd_date());
-					checkDiscountCodeResponseVO.setCity(couponUnLimted.getCity());
-					checkDiscountCodeResponseVO.setMin_order_value(couponUnLimted.getMin_order_value());
-					checkDiscountCodeResponseVO.setMerchantbranch_id(couponUnLimted.getMerchantbranch_id());
-					checkDiscountCodeResponseVO.setUsage(couponUnLimted.getUsages());
-					checkDiscountCodeResponseVO.setMax_usage(couponUnLimted	.getMax_usage());
-					return checkDiscountCodeResponseVO;
-				} 
-				else
-				{
-					checkDiscountCodeResponseVO.setError("Your Coupon Code is Expired.");
-				}
-				}
-				else
-				{
-					checkDiscountCodeResponseVO.setError("You have to order for minimum " + couponUnLimted.getMin_order_value()+ " value to use this coupon.");
-				}
-				try {
-					discountCouponDao.increamentUsageValue(
-							couponUnLimted.getUsages(), couponUnLimted.getId());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				}
-				//close  limited checking for merchant coupon code	
-			}
-			else if (couponUnLimted != null	&& couponUnLimted.getMin_order_value() <= total_order_value)
-			{
-				if (calculateDifferenceInDays.checkAvailability(
-						systemdate,
+				// close limited checking for merchant coupon code
+			} else if (couponUnLimted != null
+					&& couponUnLimted.getMin_order_value() <= total_order_value) {
+				if (calculateDifferenceInDays.checkAvailability(systemdate,
 						couponUnLimted.getEnd_date())) {
 					checkDiscountCodeResponseVO.setStatus("success");
 					checkDiscountCodeResponseVO.setCoupon_code(couponUnLimted
@@ -2108,7 +2207,8 @@ public class DynamicDataService {
 	}
 
 	// get Address Current Location and Merchant Location ..
-	public CheckDistanceResponseVO getDistanceDetails(String latitude,String longitude, String merchantbranch_id) {
+	public CheckDistanceResponseVO getDistanceDetails(String latitude,
+			String longitude, String merchantbranch_id) {
 		CheckDistanceResponseVO status = new CheckDistanceResponseVO();
 		try {
 			if (latitude != null && longitude != null) {
@@ -2123,14 +2223,12 @@ public class DynamicDataService {
 						ObjectMapper mapper = new ObjectMapper();
 						json_all_address = mapper.readValue(jsonAddress,CheckDistanceResponseVO.class);
 						double distanse = json_all_address.getRows()[0].getElements()[0].getDistance().getValue();
-						if (distanse > 5000.0) {
-								status.setStatus("failue");
+						if (distanse > 4500.0) {
+							status.setStatus("failue");
 						} else {
 							status.setStatus("success");
-							status.setDestination_addresses(json_all_address
-									.getDestination_addresses());
-							status.setOrigin_addresses(json_all_address
-									.getOrigin_addresses());
+							status.setDestination_addresses(json_all_address.getOrigin_addresses());
+							status.setOrigin_addresses(json_all_address.getOrigin_addresses());
 							status.setRows(json_all_address.getRows());
 						}
 					} catch (Exception ek) {
@@ -2224,25 +2322,34 @@ public class DynamicDataService {
 		}
 		return statusresponse;
 	}
+
 	public Status getDeliveryTrackingRoadRunnrStatus(String order_id,
-			String status,String driver_name,String driver_number,String timestamp) {
+			String status, String driver_name, String driver_number,
+			String timestamp) {
 		Status statusresponse = new Status();
 		try {
-			String customer_mob_no=null,order_id_our=null;
-			SpearSMSUtility smsUtility=new SpearSMSUtility();
-			NewOrderDetails user_id= newOrdersDetails.getUserIdFormNeworderDetails(order_id);
-			if(user_id!=null)
-			{
-				order_id_our=user_id.getOrder_id();
-				User userdetails=userDao.getUserDetails(user_id.getUser_id());
-				if(userdetails!=null)
-				{
-					customer_mob_no=userdetails.getMobile_number();
-					String smstemplatefortracking="Status of your order delivery - "+status+" Delivery boy "+driver_name+" Contact Number "+driver_number+" Hungry Bells.";
-					smsUtility.process_sms(customer_mob_no, smstemplatefortracking, "", "", "");
+			String customer_mob_no = null, order_id_our = null;
+			SpearSMSUtility smsUtility = new SpearSMSUtility();
+			NewOrderDetails user_id = newOrdersDetails
+					.getUserIdFormNeworderDetails(order_id);
+			if (user_id != null) {
+				order_id_our = user_id.getOrder_id();
+				User userdetails = userDao.getUserDetails(user_id.getUser_id());
+				if (userdetails != null) {
+					customer_mob_no = userdetails.getMobile_number();
+					String smstemplatefortracking = "Status of your order delivery - "
+							+ status
+							+ " Delivery boy "
+							+ driver_name
+							+ " Contact Number "
+							+ driver_number
+							+ " Hungry Bells.";
+					smsUtility.process_sms(customer_mob_no,
+							smstemplatefortracking, "", "", "");
 				}
 			}
-			orderDeatilDao.updateDeliveryTrackingRaodRunnr(order_id, status,driver_name,driver_number);
+			orderDeatilDao.updateDeliveryTrackingRaodRunnr(order_id, status,
+					driver_name, driver_number);
 			statusresponse.setCode(1);
 			statusresponse.setMessage("Successfully Updated Delivery Status");
 		} catch (Exception e) {
@@ -2326,10 +2433,9 @@ public class DynamicDataService {
 		return adminloginstatus;
 	}
 
-	
 	public HomePageFavTagResponseVO getAllHomePageDataForFavTag(
 			String latitude, String longitude, String user_id) {
-		ArrayList<FavTagVo> 	favTagList = new ArrayList<FavTagVo>();
+		ArrayList<FavTagVo> favTagList = new ArrayList<FavTagVo>();
 		HomePageFavTagResponseVO homePageResponseVo = new HomePageFavTagResponseVO();
 		List<FavTagVo> favouritesTags = new ArrayList<FavTagVo>();
 		FavTagVo favTag = null;
@@ -2338,166 +2444,209 @@ public class DynamicDataService {
 		HomePageResponseVO homePageResponseVo1 = null;
 		String locationStr = getLocation(latitude, longitude);
 		try {
-			List<NewOrderDetails> orderIds = newOrdersDetails.getAllOrdersId(user_id);
+			ArrayList<String> allTagsInLocation = new ArrayList<String>();
+			List<NewOrderDetails> orderIds = newOrdersDetails
+					.getAllOrdersId(user_id);
 			if (orderIds != null && orderIds.size() > 0) {
-				
 				for (NewOrderDetails newOrderDetails : orderIds) {
-					 
-					
-					List<DealOrders> dealnames = ordersDao.getAllOrdersIdForDealName(newOrderDetails.getOrder_id());
-					if (dealnames != null && dealnames.size() > 0) 
-					{
+					List<DealOrders> dealnames = ordersDao
+							.getAllOrdersIdForDealName(newOrderDetails
+									.getOrder_id());
+					if (dealnames != null && dealnames.size() > 0) {
 						for (DealOrders dealOrders : dealnames) {
 							user_tag_names = new ArrayList<Deal>();
-							user_tag_names = dealDao.getAllTagForUser(dealOrders.getDeal_id());
+							user_tag_names = dealDao
+									.getAllTagForUser(dealOrders.getDeal_id());
 							tagsListr = new ArrayList<FavTagVo>();
 							tagsListr = prepareFavTagVO(user_tag_names);
-							for (int i = 0; i < tagsListr.size(); i++) 
-							{
+							for (int i = 0; i < tagsListr.size(); i++) {
 								if (!exists(favTagList, tagsListr.get(i)))
 									favTagList.add(tagsListr.get(i));
-
 							}
-							Location location1 = locationDao.getLocation(locationStr);
-							trendingtag = trendingTagDao.getAllTag(location1.getName(), 0);
-							recomendedtag = recommendedTagDao.getAllTagRecom(
-									location1.getName(), 0);
-							List<String> recommendedTagNames = new<String> ArrayList();
-							if (recomendedtag != null) {
-								for (RecommendedTag recomTag : recomendedtag) {
-									recommendedTagNames.add(recomTag
-											.getTagName_of_location().toLowerCase());
-								}
+						}
+
+						Location location1 = locationDao
+								.getLocation(locationStr);
+						trendingtag = trendingTagDao.getAllTag(
+								location1.getName(), 0);
+						recomendedtag = recommendedTagDao.getAllTagRecom(
+								location1.getName(), 0);
+						List<String> recommendedTagNames = new<String> ArrayList();
+						if (recomendedtag != null) {
+							for (RecommendedTag recomTag : recomendedtag) {
+								recommendedTagNames
+										.add(recomTag.getTagName_of_location()
+												.toLowerCase());
+								System.out.println("recomended : "
+										+ recomTag.getTagName_of_location());
 							}
+						}
 
-							List<String> trendingTagNames = new<String> ArrayList();
-							if (trendingtag != null) {
-								for (TrendingTag trendingTag : trendingtag) {
-									trendingTagNames.add(trendingTag
-											.getTagName_of_location().toLowerCase());
-								}
+						List<String> trendingTagNames = new<String> ArrayList();
+						if (trendingtag != null) {
+							for (TrendingTag trendingTag : trendingtag) {
+								trendingTagNames
+										.add(trendingTag
+												.getTagName_of_location()
+												.toLowerCase());
+								System.out.println("trending : "
+										+ trendingTag.getTagName_of_location());
 							}
+						}
 
-							ArrayList<String> allTagsInLocation = new ArrayList<String>();
-							allTagsInLocation.addAll(recommendedTagNames);
+						allTagsInLocation.addAll(recommendedTagNames);
 
-							// Remove duplicates & add
-							allTagsInLocation.removeAll(trendingTagNames);
-							allTagsInLocation.addAll(trendingTagNames);
+						// Remove duplicates & add
+						allTagsInLocation.removeAll(trendingTagNames);
+						allTagsInLocation.addAll(trendingTagNames);
 
-							for (int i = 0; i < favTagList.size(); i++) {
-								FavTagVo favouriteTag = (FavTagVo) favTagList.get(i);
-								if (!allTagsInLocation.contains(favouriteTag.getTag_name()
-										.toLowerCase())) {
-									System.out.println("Not found: location "
-											+ favouriteTag.getTag_name().toLowerCase());
-									favTagList.remove(i);
-									// homePageResponseVo = new HomePageFavTagResponseVO();
-									homePageResponseVo.setFavourites(favTagList);
-								}
+						for (int i = 0; i < favTagList.size(); i++) {
+							FavTagVo favouriteTag = (FavTagVo) favTagList
+									.get(i);
+							String favTagName = favouriteTag.getTag_name()
+									.toLowerCase();
+							if (!allTagsInLocation.contains(favTagName)) {
+								favTagList.remove(i--);
 							}
-
-
 						}
 					}
 				}
+
+				for (int i = 0; i < favTagList.size(); i++) {
+					System.out.println("Favourite:"
+							+ favTagList.get(i).getTag_name());
+				}
+
 				// this logic for filter data for Favourites tags
-				
+				if (favTagList.size() > 0) {
+					homePageResponseVo.setFavourites(favTagList);
+					return homePageResponseVo;
+				}
 			}
-			///////////////////nearest location tags
-			if( favTagList.size()==0)
-			{	
+			// /////////////////nearest location tags
+			if (favTagList.size() == 0 || allTagsInLocation.size() == 0) {
 				orderIds = newOrdersDetails.getAllOrdersId(user_id);
 				if (orderIds != null) {
 					for (NewOrderDetails newOrderDetails : orderIds) {
-						 homePageResponseVo = new HomePageFavTagResponseVO();
-						
-					//	favTagList =new ArrayList<FavTagVo>();
-						List<DealOrders> dealnames = ordersDao.getAllOrdersIdForDealName(newOrderDetails.getOrder_id());
+						homePageResponseVo = new HomePageFavTagResponseVO();
+
+						// favTagList =new ArrayList<FavTagVo>();
+						List<DealOrders> dealnames = ordersDao
+								.getAllOrdersIdForDealName(newOrderDetails
+										.getOrder_id());
 						if (dealnames != null) {
 							for (DealOrders dealOrders : dealnames) {
 								user_tag_names = new ArrayList<Deal>();
-								user_tag_names = dealDao.getAllTagForUser(dealOrders.getDeal_id());
-								
+								user_tag_names = dealDao
+										.getAllTagForUser(dealOrders
+												.getDeal_id());
+
 								tagsListr = new ArrayList<FavTagVo>();
 								tagsListr = prepareFavTagVO(user_tag_names);
 								for (int i = 0; i < tagsListr.size(); i++) {
-									if (!exists(favTagList,tagsListr.get(i)))
+									if (!exists(favTagList, tagsListr.get(i)))
 										favTagList.add(tagsListr.get(i));
 								}
 							}
-							//
+							List<MerchantBranch> mb = merchantBranchDao
+									.getMerchantBranchForNearestLocationList();
+							Iterator iterator = null;
+							List<Long> branchidList = new ArrayList<Long>();
+							for (iterator = mb.iterator(); iterator.hasNext();) {
+								MerchantBranch mbo = (MerchantBranch) iterator
+										.next();
+								try {
+									double kmDealTag = getNearestLocationDistance(
+											latitude, longitude, mbo.lattitue,
+											mbo.longitude);
+									if (kmDealTag <= 3.5) {
+										branchidList.add(mbo.getId());
 									}
-					}
-					List<MerchantBranch> mb = merchantBranchDao.getMerchantBranchForNearestLocationList();
-					Iterator iterator = null;
-					List<Long> branchidList = new ArrayList<Long>();
-					for (iterator = mb.iterator(); iterator.hasNext();) {
-						MerchantBranch mbo = (MerchantBranch) iterator.next();
-						try {
-							double kmDealTag = getNearestLocationDistance(latitude,longitude, mbo.lattitue, mbo.longitude);
-							if (kmDealTag <= 3.5) {
-								branchidList.add(mbo.getId());
+								} catch (Exception ek1) {
+									ek1.printStackTrace();
+								}
 							}
-						} catch (Exception ek1) {
-							ek1.printStackTrace();
-						}
-					}
-					List<Deal> dealsListTotal = dealDao	.getAllDealsForLocation(branchidList);
-					List<Deal> dealsList = dealDao.getNearestAllDealsForBranchIds(branchidList);
-					List<Deal> recoDealsList = dealDao.getAllRecommendedDealsForLocation(branchidList);
-					homePageResponseVo1=new HomePageResponseVO();
-					homePageResponseVo1 = prepareHomePageVO(null, recoDealsList,	null, "" + dealsListTotal.size(), null, null,dealsList, null);
-					
-					List<TagVO> nearByRecommendedTags=homePageResponseVo1.getResult().getRecomended();
-					List<TagVO> nearByTrendingTags=homePageResponseVo1.getResult().getTrending();
-								
-					//Remove duplicates & add
-					List<String> allTagsInNearByLocation=new ArrayList<String>();
-					
-					System.out.println("Recommended:");
-					if(nearByRecommendedTags!=null)
-						for(int i=0;i<nearByRecommendedTags.size();i++){
-							allTagsInNearByLocation.add(nearByRecommendedTags.get(i).getTag_name().trim());
-							System.out.println(nearByRecommendedTags.get(i).getTag_name().trim());
-						}
-					
-					System.out.println("Trending");
-					
-					List<String> tempTagList=new ArrayList<String>();
-					if(nearByTrendingTags!=null)
-						for(int i=0;i<nearByRecommendedTags.size();i++){
-							tempTagList.add(nearByTrendingTags.get(i).getTag_name().trim());
-							System.out.println(nearByTrendingTags.get(i).getTag_name().trim());
-						}
-					
-					//Remove duplicates & add trending tags
-					allTagsInNearByLocation.removeAll(tempTagList);
-					allTagsInNearByLocation.addAll(tempTagList);
-					System.out.println("Favourite before checking:");
-					for(int i=0;i<favTagList.size();i++){
-						System.out.println(favTagList.get(i).getTag_name().trim());
-					}
-						
-					for(int i=0;i<favTagList.size();i++){
-						FavTagVo favouriteTag=(FavTagVo) favTagList.get(i);
-						if(!allTagsInNearByLocation.contains(favouriteTag.getTag_name().toLowerCase().trim())){
-							System.out.println("Not found: nearest"+favouriteTag.getTag_name().toLowerCase().trim());
-							favTagList.remove(i);
-						   // favTagList = new ArrayList<FavTagVo>();
-						  //	return favTagList;
-							homePageResponseVo.setFavourites(favTagList);	
-							
-						}
-					}
+							List<Deal> dealsListTotal = dealDao
+									.getAllDealsForLocation(branchidList);
+							List<Deal> dealsList = dealDao
+									.getNearestAllDealsForBranchIds(branchidList);
+							List<Deal> recoDealsList = dealDao
+									.getAllRecommendedDealsForLocation(branchidList);
+							homePageResponseVo1 = new HomePageResponseVO();
+							homePageResponseVo1 = prepareHomePageVO(null,
+									recoDealsList, null,
+									"" + dealsListTotal.size(), null, null,
+									dealsList, null);
 
-  			    }
-			}	
-						
-			
+							List<TagVO> nearByRecommendedTags = homePageResponseVo1
+									.getResult().getRecomended();
+							List<TagVO> nearByTrendingTags = homePageResponseVo1
+									.getResult().getTrending();
+
+							// Remove duplicates & add
+							List<String> allTagsInNearByLocation = new ArrayList<String>();
+
+							System.out.println("Recommended:");
+							if (nearByRecommendedTags != null)
+								for (int i = 0; i < nearByRecommendedTags
+										.size(); i++) {
+									allTagsInNearByLocation
+											.add(nearByRecommendedTags.get(i)
+													.getTag_name()
+													.toLowerCase().trim());
+									System.out.println(nearByRecommendedTags
+											.get(i).getTag_name().toLowerCase()
+											.trim());
+								}
+
+							System.out.println("Trending");
+
+							List<String> tempTagList = new ArrayList<String>();
+							if (nearByTrendingTags != null)
+								for (int i = 0; i < nearByTrendingTags.size(); i++) {
+									tempTagList
+											.add(nearByTrendingTags.get(i)
+													.getTag_name()
+													.toLowerCase().trim());
+									System.out.println(nearByTrendingTags
+											.get(i).getTag_name().toLowerCase()
+											.trim());
+								}
+
+							// Remove duplicates & add trending tags
+							allTagsInNearByLocation.removeAll(tempTagList);
+							allTagsInNearByLocation.addAll(tempTagList);
+							System.out.println("Favourite before checking:");
+							for (int i = 0; i < favTagList.size(); i++) {
+								System.out.println(favTagList.get(i)
+										.getTag_name().toLowerCase().trim());
+							}
+
+							for (int i = 0; i < favTagList.size(); i++) {
+								FavTagVo favouriteTag = (FavTagVo) favTagList
+										.get(i);
+								String favTagName = favouriteTag.getTag_name()
+										.toLowerCase().trim();
+								if (!allTagsInNearByLocation
+										.contains(favTagName)) {
+									System.out.println("Not found: nearest"
+											+ favTagName);
+									favTagList.remove(i--);
+								}
+							}
+							homePageResponseVo.setFavourites(favTagList);
+						}
+					}
+				}
+			}
 		} catch (Exception ek) {
 			ek.printStackTrace();
 		}
+
+		for (int i = 0; i < favTagList.size(); i++) {
+			System.out.println("Favourite:" + favTagList.get(0).getTag_name());
+		}
+
 		return homePageResponseVo;
 	}
 
@@ -2532,7 +2681,7 @@ public class DynamicDataService {
 		return tagsList;
 	}
 
-	private boolean exists(ArrayList<FavTagVo> favTagList ,FavTagVo tagVO) {
+	private boolean exists(ArrayList<FavTagVo> favTagList, FavTagVo tagVO) {
 		for (FavTagVo favTags : favTagList) {
 			FavTagVo favouriteTag = favTags;
 			if (favouriteTag.getTag_name().toLowerCase()
@@ -2546,15 +2695,13 @@ public class DynamicDataService {
 		return userDao.saveUser(deviceId, email);
 	}
 
-	public boolean updateUserEmail(long userId,String email) {
-		userDao.updateEmail(userId,email);
+	public boolean updateUserEmail(long userId, String email) {
+		userDao.updateEmail(userId, email);
 		return true;
 	}
 
 	public boolean updateUserDevice(Long userId, String deviceId) {
-		userDao.updateDevice(userId,deviceId);	
+		userDao.updateDevice(userId, deviceId);
 		return true;
 	}
 }
-	
-

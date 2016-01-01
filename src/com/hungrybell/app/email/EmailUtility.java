@@ -264,5 +264,57 @@ public class EmailUtility extends HttpServlet {
 	}
 	
 	
+	////////////email method for trending and recomended proceesing
+	
+	public String emailSendOurTeamForTrendingRecom(String emailid) {
+		try {
+			dataGetFromProperty.getPropValues();
+			System.out.println("Email Triggering Please Wait.......");
+			props.put("mail.smtp.auth", "true");
+			props.put("mail.smtp.starttls.enable", "true");
+			props.put("mail.smtp.host", "smtp.gmail.com");
+			props.put("mail.smtp.port", "587");
+
+			Session session = Session.getInstance(props,
+					new javax.mail.Authenticator() {
+						protected PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(
+									dataGetFromProperty.emailidname,
+									dataGetFromProperty.emailpassword);
+						}
+					});
+			Message msg = new MimeMessage(session);
+			msg.setSubject("Scheduler For Tags");
+			msg.setContent(
+					"<html><h4><font color=\"black\" size='2' style="
+							+ "background-color:white"
+							+ ">Dear "
+							+ "Hungry Bells Team,"
+							+ "<br><br>Trending and recommended  tags successfully updated.</font><br></h4>"
+							+ "<font color=\"black\" size='2' style="
+							+ "background-color:white"
+							+ "</html>", "text/html");
+
+			InternetAddress from = new InternetAddress(
+					dataGetFromProperty.emailidname, "Hungry Bells");
+			InternetAddress to = new InternetAddress(emailid, "Mr. HungryBells Team");
+			msg.addRecipient(Message.RecipientType.TO, to);
+			msg.setFrom(from);
+
+			Transport transport = session.getTransport("smtp");
+			transport.connect(dataGetFromProperty.emailidname,dataGetFromProperty.emailpassword);
+			transport.sendMessage(msg, msg.getAllRecipients());
+			transport.close();
+			System.out.println("!! Email Triggered !!");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "seccess";
+	}
+	
+	
+	
+	
 
 }
