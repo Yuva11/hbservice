@@ -9,6 +9,7 @@ public class HomePageReqVO implements Serializable {
 	String device_id;
 	String user_id;
 	String email;
+	String branch_id;
 
 	public String getLatitude() {
 		return latitude;
@@ -48,6 +49,14 @@ public class HomePageReqVO implements Serializable {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getBranch_id() {
+		return branch_id;
+	}
+
+	public void setBranch_id(String branch_id) {
+		this.branch_id = branch_id;
 	}
 	
 	

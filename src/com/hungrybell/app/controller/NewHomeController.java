@@ -63,11 +63,11 @@ public class NewHomeController {
 			user = dynamicDataService.getUserByDevice(deviceId);
 			if (user != null && email != null && !email.isEmpty()) {
 				if (user.getEmail() == null) {
-					dynamicDataService.updateUserEmail(user.getId(), email);
+					//dynamicDataService.updateUserEmail(user.getId(), email);
 				} else {
 					if (!user.getEmail().equals(email)) {
 
-						dynamicDataService.updateUserEmail(user.getId(), email);
+						//dynamicDataService.updateUserEmail(user.getId(), email);
 					}
 				}
 
@@ -97,7 +97,7 @@ public class NewHomeController {
 			long userIdValue = 0;
 			// Create new user
 			if (user == null && deviceId != null && !deviceId.isEmpty()) {
-				user = dynamicDataService.createNewUser(deviceId, email);
+				user = dynamicDataService.createNewUser(deviceId, email,homePageRequestVO.getBody().getBranch_id());
 			}
 			if (user != null)
 				userIdValue = user.getId();

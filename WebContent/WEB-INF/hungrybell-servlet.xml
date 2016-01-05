@@ -113,6 +113,8 @@
 				<value>com.hungrybell.app.model.Roles</value>
 				<value>com.hungrybell.app.model.KitchenCoupon</value>
 				<value>com.hungrybell.app.model.City</value>
+				<value>com.hungrybell.app.model.Setting</value>
+				
 				
 				
 			</list>

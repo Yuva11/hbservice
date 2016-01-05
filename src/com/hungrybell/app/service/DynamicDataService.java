@@ -44,6 +44,7 @@ import com.hungrybell.app.dao.OrdersDao;
 import com.hungrybell.app.dao.PaymentDao;
 import com.hungrybell.app.dao.RecommendedTagDao;
 import com.hungrybell.app.dao.RolesDao;
+import com.hungrybell.app.dao.SettingDao;
 import com.hungrybell.app.dao.TrendingTagDao;
 import com.hungrybell.app.dao.UserDao;
 import com.hungrybell.app.date.CalculateDifferenceInDays;
@@ -67,6 +68,7 @@ import com.hungrybell.app.model.NewPayment;
 import com.hungrybell.app.model.OrderDetail;
 import com.hungrybell.app.model.RecommendedTag;
 import com.hungrybell.app.model.Roles;
+import com.hungrybell.app.model.Setting;
 import com.hungrybell.app.model.TrendingTag;
 import com.hungrybell.app.model.User;
 import com.hungrybell.app.sms.SmsUtility;
@@ -168,6 +170,9 @@ public class DynamicDataService {
 	@Autowired
 	private KitchenCouponDao kitchenCouponDao;
 
+	@Autowired
+	private SettingDao settingDao;
+	
 	Location location1 = null;
 
 	List<TrendingTag> trendingtag = null;
@@ -2206,9 +2211,9 @@ public class DynamicDataService {
 		return checkDiscountCodeResponseVO;
 	}
 
+	
 	// get Address Current Location and Merchant Location ..
-	public CheckDistanceResponseVO getDistanceDetails(String latitude,
-			String longitude, String merchantbranch_id) {
+	public CheckDistanceResponseVO getDistanceDetails(String latitude,String longitude, String merchantbranch_id) {
 		CheckDistanceResponseVO status = new CheckDistanceResponseVO();
 		try {
 			if (latitude != null && longitude != null) {
@@ -2230,11 +2235,12 @@ public class DynamicDataService {
 							status.setDestination_addresses(json_all_address.getOrigin_addresses());
 							status.setOrigin_addresses(json_all_address.getOrigin_addresses());
 							status.setRows(json_all_address.getRows());
+						 	Setting setting=settingDao.getDeails();
+							status.setDeliveryCharge(""+setting.getDelivery_charges());
 						}
 					} catch (Exception ek) {
 						ek.printStackTrace();
 					}
-
 				}
 			} else {
 				status.setStatus("failure");
@@ -2244,7 +2250,6 @@ public class DynamicDataService {
 		}
 		return status;
 	}
-
 	// ..........
 	/* ....Call Google Api For Address... */
 	/* ....Service for my order details... */
@@ -2691,8 +2696,8 @@ public class DynamicDataService {
 		return false;
 	}
 
-	public User createNewUser(String deviceId, String email) {
-		return userDao.saveUser(deviceId, email);
+	public User createNewUser(String deviceId, String email,String branchId) {
+		return userDao.saveUser(deviceId, email,branchId);
 	}
 
 	public boolean updateUserEmail(long userId, String email) {

@@ -10,6 +10,7 @@ public class CheckDistanceResponseVO implements Serializable {
 	private String[] origin_addresses;
 
 	private Rows[] rows;
+	private String  deliveryCharge;
 
 	public String getStatus() {
 		return status;
@@ -43,11 +44,22 @@ public class CheckDistanceResponseVO implements Serializable {
 		this.rows = rows;
 	}
 
+	
+	public String getDeliveryCharge() {
+		return deliveryCharge;
+	}
+
+	public void setDeliveryCharge(String deliveryCharge) {
+		this.deliveryCharge = deliveryCharge;
+	}
+
 	@Override
 	public String toString() {
 		return "ClassPojo [status = " + status + ", destination_addresses = "
 				+ destination_addresses + ", origin_addresses = "
 				+ origin_addresses + ", rows = " + rows + "]";
 	}
+	
+	
 
 }

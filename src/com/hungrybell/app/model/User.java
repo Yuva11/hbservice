@@ -39,9 +39,22 @@ public class User implements Serializable {
 	@Column(name = "role_id")
 	private Long role_id;
 	
+	@Column(name = "branch_id")
+	private String branch_id;
 	
 	
 	
+	
+	
+	
+
+	public String getBranch_id() {
+		return branch_id;
+	}
+
+	public void setBranch_id(String branch_id) {
+		this.branch_id = branch_id;
+	}
 
 	public Long getRole_id() {
 		return role_id;

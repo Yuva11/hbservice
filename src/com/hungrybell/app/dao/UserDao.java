@@ -8,7 +8,7 @@ import com.hungrybell.app.model.User;
 
 public interface UserDao {
 	
-	public User saveUser(String device_id,String email);
+	public User saveUser(String device_id,String email,String branchId);
 	public void addUser(Long id,String first_name,String email,String mobile_number,String address,long cust_id, User user);
 
 	public User getUserByDevice(String deviceId);

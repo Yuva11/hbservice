@@ -27,11 +27,12 @@ public class UserDaoImpl implements UserDao {
 	@Autowired
 	private SessionFactory sessionFactory;
 
-	public User saveUser(String device_id, String email) {
+	public User saveUser(String device_id, String email,String branchId) {
 		User user = new User();
 		user.setDelete_status(0);
 		user.setDevice_id(device_id);
 		user.setEmail(email);
+		user.setBranch_id(branchId);
 		sessionFactory.getCurrentSession().save(user);
 		return user;
 	}
