@@ -9,6 +9,7 @@ public class CheckDistanceRequestVO implements Serializable{
 	    private String latitude;
 
 	    private String merchantbranch_id;
+	    private String userId;
 
 	    public String getLongitude ()
 	    {
@@ -39,10 +40,22 @@ public class CheckDistanceRequestVO implements Serializable{
 	    {
 	        this.merchantbranch_id = merchantbranch_id;
 	    }
+	    
+	    
 
-	    @Override
+	    public String getUserId() {
+			return userId;
+		}
+
+		public void setUserId(String userId) {
+			this.userId = userId;
+		}
+
+		@Override
 	    public String toString()
 	    {
 	        return "ClassPojo [longitude = "+longitude+", latitude = "+latitude+", merchantbranch_id = "+merchantbranch_id+"]";
 	    }
+	    
+	    
 }

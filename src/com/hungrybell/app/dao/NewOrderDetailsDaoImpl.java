@@ -179,5 +179,26 @@ public List<NewOrderDetails> getAllOrdersId(String user_id)
 	}
 	return null;
 }
+
+
+public List<NewOrderDetails> getUserOrderCount(long user_id)
+{
+	try {
+	
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(NewOrderDetails.class);
+	    criteria.add(Restrictions.eq("user_id",user_id));
+	    criteria.add(Restrictions.eq("order_status","Confirmed"));
+		if (!criteria.list().isEmpty()) {
+			return criteria.list();
+		} else {
+			return null;
+		}
+	} catch (Exception el) {
+	}
+	return null;
+}
+
+
+
 	
 }

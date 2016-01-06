@@ -43,6 +43,7 @@ import com.hungrybell.app.dao.OrderDeatilDao;
 import com.hungrybell.app.dao.OrdersDao;
 import com.hungrybell.app.dao.PaymentDao;
 import com.hungrybell.app.dao.RecommendedTagDao;
+import com.hungrybell.app.dao.RepeatDiscountDao;
 import com.hungrybell.app.dao.RolesDao;
 import com.hungrybell.app.dao.SettingDao;
 import com.hungrybell.app.dao.TrendingTagDao;
@@ -67,6 +68,7 @@ import com.hungrybell.app.model.NewOrderDetails;
 import com.hungrybell.app.model.NewPayment;
 import com.hungrybell.app.model.OrderDetail;
 import com.hungrybell.app.model.RecommendedTag;
+import com.hungrybell.app.model.RepeatDiscount;
 import com.hungrybell.app.model.Roles;
 import com.hungrybell.app.model.Setting;
 import com.hungrybell.app.model.TrendingTag;
@@ -103,8 +105,10 @@ import com.hungrybell.app.vo.response.TagDealsListResponseVOAddToCart;
 import com.hungrybell.app.vo.response.TagListDealsPageVO;
 import com.hungrybell.app.vo.response.TagListDealsPageVOATC;
 import com.hungrybell.app.vo.response.TagVO;
+import com.hungrybell.app.vo.response.UserGemificationStatus;
 import com.hungrybell.util.DistanceCalculatorUtil;
 import com.hungrybell.util.HttpRequestor;
+import com.mysql.fabric.Response;
 
 @Service("dynamicDataService")
 @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -172,6 +176,11 @@ public class DynamicDataService {
 
 	@Autowired
 	private SettingDao settingDao;
+	
+	@Autowired
+	private RepeatDiscountDao repeatDiscountDao;
+	
+	
 	
 	Location location1 = null;
 
@@ -809,7 +818,6 @@ public class DynamicDataService {
 
 				Merchant merchant = getMerchantDetailForMerchantId(merchantBranch
 						.getMerchant_id());
-				System.out.println("-----kkkkkkkkkkkk-----------------11");
 				if (merchant != null && order_type.equals("COD")
 						|| order_type.equals("FO")) {
 					merchantname = merchant.getName();
@@ -925,7 +933,7 @@ public class DynamicDataService {
 			if (!locationDao.locationExists(cityId, location_name1))
 				locationDao.saveNewLocation(latitude, longitude,
 						location_name1, cityId);
-
+	
 		}
 		status2.setCode(1);
 		status2.setMessage("Order Placed  Successfully");
@@ -2213,7 +2221,7 @@ public class DynamicDataService {
 
 	
 	// get Address Current Location and Merchant Location ..
-	public CheckDistanceResponseVO getDistanceDetails(String latitude,String longitude, String merchantbranch_id) {
+	public CheckDistanceResponseVO getDistanceDetails(String latitude,String longitude, String merchantbranch_id,String userId) {
 		CheckDistanceResponseVO status = new CheckDistanceResponseVO();
 		try {
 			if (latitude != null && longitude != null) {
@@ -2237,6 +2245,14 @@ public class DynamicDataService {
 							status.setRows(json_all_address.getRows());
 						 	Setting setting=settingDao.getDeails();
 							status.setDeliveryCharge(""+setting.getDelivery_charges());
+							
+							int orderCounts=getOrderCount(Long.parseLong(userId));
+							if(orderCounts>0){
+								RepeatDiscount repeatDiscount = repeatDiscountDao.getRepeatDiscount(orderCounts+1);
+								status.setType(repeatDiscount.getType()+"");
+								status.setValue(repeatDiscount.getValue()+"");
+								status.setMessage(repeatDiscount.getCustome_message());
+							}
 						}
 					} catch (Exception ek) {
 						ek.printStackTrace();
@@ -2709,4 +2725,38 @@ public class DynamicDataService {
 		userDao.updateDevice(userId, deviceId);
 		return true;
 	}
+	
+	
+	//user gamification logic
+/*	
+ public UserGemificationStatus	userGamificationDetails(long cust_id)
+ {
+	UserGemificationStatus userGemificationStatus=new UserGemificationStatus();
+	List<NewOrderDetails> user_order_count = newOrdersDetails.getUserOrderCount(cust_id);
+	if(user_order_count!=null){				
+	if (!userGamificationDao.userExists(cust_id)) {
+		userGamificationDao.saveUserOrderCount(user_order_count.size(), cust_id);
+		userGemificationStatus.setStatus("success");
+	}
+	else{
+		userGamificationDao.updateUserOrderCount(user_order_count.size(), cust_id);
+		userGemificationStatus.setStatus("success");
+	}
+	}
+	return userGemificationStatus;
+	
+ }
+*/
+
+	public int getOrderCount(long userId){
+		List<NewOrderDetails> user_order_count = newOrdersDetails.getUserOrderCount(userId);
+		if(user_order_count!=null)
+		{
+			return user_order_count.size();
+		}
+		return 0;
+	}
+
+ 
+	
 }

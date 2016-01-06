@@ -42,7 +42,8 @@ public class CheckDistanceController {
 			checkDistancerequest = mapper.readValue(input,CheckDistanceRequestVO.class);
 			checkDistanceResponse = dynamicDataService.getDistanceDetails(checkDistancerequest.getLatitude(),
 					checkDistancerequest.getLongitude(),
-					checkDistancerequest.getMerchantbranch_id());
+					checkDistancerequest.getMerchantbranch_id(),
+					checkDistancerequest.getUserId());
 			return checkDistanceResponse;
 
 		} catch (Exception ex) {
