@@ -13,6 +13,8 @@ public interface OrdersDao
 	public List<DealOrders> getOrder(String  order_id);
 	public List<DealOrders> getAllOrdersIdForDealName(String   order_id);
 	
+	public int getDealOrderedCount(long dealId);
+	
 	
 	
 }

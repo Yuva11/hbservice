@@ -27,6 +27,7 @@ public interface NewOrderDetailsDao
     
     public List<NewOrderDetails> getUserOrderCount(long user_id);
     
+    
 
 	
 	

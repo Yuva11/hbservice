@@ -35,11 +35,18 @@ public class DealOrders implements Serializable
 	@Column(name="merchant_name")
 	private String merchant_name;
 	
+	@Column(name="deleted")
+	private int deleted;
 	
 	
 	
 	
-	
+	public int getDeleted() {
+		return deleted;
+	}
+	public void setDeleted(int deleted) {
+		this.deleted = deleted;
+	}
 	public String getDeal_name() {
 		return deal_name;
 	}

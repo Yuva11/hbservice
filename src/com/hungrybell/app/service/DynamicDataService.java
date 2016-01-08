@@ -437,17 +437,13 @@ public class DynamicDataService {
 			Location location1 = locationDao.getLocation(location);
 			long locationId = location1.getId();
 			List<Long> branchIds = getMerchantBranchForLocation(locationId);
-			List<Deal> dealsListTotal = dealDao
-					.getAllDealsForLocation(branchIds);
-			List<Deal> dealsList = dealDao.getAllDealsForBranchIdsAndTag(
-					branchIds, tagName);
+			List<Deal> dealsListTotal = dealDao.getAllDealsForLocation(branchIds);
+			List<Deal> dealsList = dealDao.getAllDealsForBranchIdsAndTag(branchIds, tagName);
 			// tagDealsListResponseVO=new TagDealsListResponseVO();
-			tagDealsListResponseVO = prepareTagDealsListVO(dealsList, ""
-					+ dealsListTotal.size(), latitude, longitude);
+			tagDealsListResponseVO = prepareTagDealsListVO(dealsList, ""+ dealsListTotal.size(), latitude, longitude);
 			return tagDealsListResponseVO;
 		} catch (Exception ek) {// Nearest tagDealList logic
-			List<MerchantBranch> mb = merchantBranchDao
-					.getMerchantBranchForNearestLocationList();
+			List<MerchantBranch> mb = merchantBranchDao	.getMerchantBranchForNearestLocationList();
 			tagDealsListResponseVO = new TagDealsListResponseVO();
 			GetAddressGoogleApi getAddressGoogleApi = new GetAddressGoogleApi();
 			if (mb != null) {
@@ -479,16 +475,11 @@ public class DynamicDataService {
 						ek1.printStackTrace();
 					}
 				}
-				List<Deal> dealsListTotaln = dealDao
-						.getAllDealsForLocation(branchidList);
+				List<Deal> dealsListTotaln = dealDao.getAllDealsForLocation(branchidList);
 				if (dealsListTotaln != null && dealsListTotaln.size() != 0) {
-					List<Deal> dealsListn = dealDao
-							.getNearestAllDealsForBranchIdsAndTag(branchidList,
-									tagName);
+					List<Deal> dealsListn = dealDao.getNearestAllDealsForBranchIdsAndTag(branchidList,tagName);
 					if (dealsListn != null) {
-						tagDealsListResponseVO = prepareTagDealsListVO(
-								dealsListn, "" + dealsListTotaln.size(),
-								latitude, longitude);
+						tagDealsListResponseVO = prepareTagDealsListVO(dealsListn, "" + dealsListTotaln.size(),latitude, longitude);
 					}
 				}
 			}
@@ -502,9 +493,12 @@ public class DynamicDataService {
 		tagListDealsPageVO.setTotal_food_items(items);
 		List<DealVO> dealVOs = new ArrayList<DealVO>();
 		if (deals != null && deals.size() > 0) {
+			
 			for (Iterator iterator = deals.iterator(); iterator.hasNext();) {
 				Deal deal = (Deal) iterator.next();
 				DealVO dealVO = new DealVO();
+				int dealOrderedCount=ordersDao.getDealOrderedCount(deal.getId());
+				dealVO.setDealOrderedCount(dealOrderedCount);
 				dealVO.setDealId(deal.getId());
 				dealVO.setName(deal.getName());
 				dealVO.setDealPrice(deal.getDeal_price());

@@ -21,6 +21,7 @@ import com.hungrybell.app.model.NewOrderDetails;
 import com.hungrybell.app.model.NewPayment;
 import com.hungrybell.app.model.OrderDetail;
 import com.hungrybell.app.model.User;
+import com.hungrybell.app.vo.request.Orders;
 
 @Repository("NewOrderDetailsDao")
 public class NewOrderDetailsDaoImpl implements NewOrderDetailsDao{
@@ -197,7 +198,6 @@ public List<NewOrderDetails> getUserOrderCount(long user_id)
 	}
 	return null;
 }
-
 
 
 	

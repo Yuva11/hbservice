@@ -56,6 +56,15 @@ public class DealVO implements Serializable {
 	private int deallike_count;
 	
 	private int opening_quantity;
+	private int dealOrderedCount;
+	
+	public int getDealOrderedCount() {
+		return dealOrderedCount;
+	}
+
+	public void setDealOrderedCount(int dealOrderedCount) {
+		this.dealOrderedCount = dealOrderedCount;
+	}
 
 	private List<String> deliveryTypes;
 
