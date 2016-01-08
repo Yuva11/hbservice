@@ -914,6 +914,17 @@ public class DynamicDataService {
 
 				}
 			}
+			
+			//Repeat order check
+			int orderNumber=getOrderCount(cust_id)+1;
+			if(discount_method.trim().equals("repeat_order")){
+				if(offerExistsForOrder(getOrderCount(cust_id)+1))
+					coupon_code="Repeat order #"+orderNumber;
+				else{
+					discount_method="none";
+					coupon_code="none";
+			}}
+			
 			orderDeatilDao.addOrderDetailAddTOCart(longitude, latitude,
 					address, landmark, order_type, cunt_qty,
 					Double.parseDouble(order_amount), deal_id, delivery_status,
@@ -939,6 +950,10 @@ public class DynamicDataService {
 		status2.setMessage("Order Placed  Successfully");
 		status2.setOrderid(orderidcreate);
 		return status2;
+	}
+
+	private boolean offerExistsForOrder(int orderNumber) {
+		return repeatDiscountDao.getCheckExistsUser(orderNumber);	
 	}
 
 	private Deal getMerchantBranchDetailForDealId(Long dealId) {
@@ -2244,14 +2259,17 @@ public class DynamicDataService {
 							status.setOrigin_addresses(json_all_address.getOrigin_addresses());
 							status.setRows(json_all_address.getRows());
 						 	Setting setting=settingDao.getDeails();
-							status.setDeliveryCharge(""+setting.getDelivery_charges());
-							
+							if (setting != null) {
+								status.setDeliveryCharge(""+ setting.getDelivery_charges());
+							}
 							int orderCounts=getOrderCount(Long.parseLong(userId));
 							if(orderCounts>0){
 								RepeatDiscount repeatDiscount = repeatDiscountDao.getRepeatDiscount(orderCounts+1);
 								status.setType(repeatDiscount.getType()+"");
 								status.setValue(repeatDiscount.getValue()+"");
 								status.setMessage(repeatDiscount.getCustome_message());
+								status.setMaximumDiscountValue(repeatDiscount.getMaximum_discount_value());
+								status.setMinimumOrderValue(repeatDiscount.getManimum_order_value());
 							}
 						}
 					} catch (Exception ek) {

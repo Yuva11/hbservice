@@ -10,10 +10,30 @@ public class CheckDistanceResponseVO implements Serializable {
 	private String[] origin_addresses;
 
 	private Rows[] rows;
-	private String  deliveryCharge;
-	private String  type;
-	private String  value;
-	private String  message;
+	private String deliveryCharge;
+	private String type;
+	private String value;
+	private String message;
+	private Double maximumDiscountValue;
+	private Double minimumOrderValue;
+	
+	
+	
+	public Double getMinimumOrderValue() {
+		return minimumOrderValue;
+	}
+
+	public void setMinimumOrderValue(Double minimumOrderValue) {
+		this.minimumOrderValue = minimumOrderValue;
+	}
+
+	public Double getMaximumDiscountValue() {
+		return maximumDiscountValue;
+	}
+
+	public void setMaximumDiscountValue(Double maximumDiscountValue) {
+		this.maximumDiscountValue = maximumDiscountValue;
+	}
 
 	public String getStatus() {
 		return status;
@@ -47,7 +67,6 @@ public class CheckDistanceResponseVO implements Serializable {
 		this.rows = rows;
 	}
 
-	
 	public String getDeliveryCharge() {
 		return deliveryCharge;
 	}
@@ -86,7 +105,5 @@ public class CheckDistanceResponseVO implements Serializable {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	
-	
 
 }

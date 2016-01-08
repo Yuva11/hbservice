@@ -28,6 +28,33 @@ public class RepeatDiscount implements Serializable{
 	
 	@Column(name = "custome_message")
 	private String custome_message;
+	
+	@Column(name = "maximum_discount_value")
+	private Double maximum_discount_value;
+
+	
+	@Column(name = "manimum_order_value")
+	private Double manimum_order_value;
+	
+	
+	
+	
+
+	public Double getManimum_order_value() {
+		return manimum_order_value;
+	}
+
+	public void setManimum_order_value(Double manimum_order_value) {
+		this.manimum_order_value = manimum_order_value;
+	}
+
+	public Double getMaximum_discount_value() {
+		return maximum_discount_value;
+	}
+
+	public void setMaximum_discount_value(Double maximum_discount_value) {
+		this.maximum_discount_value = maximum_discount_value;
+	}
 
 	public Long getId() {
 		return id;

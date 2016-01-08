@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.hungrybell.app.model.Deal;
 import com.hungrybell.app.model.DealUserLike;
+import com.hungrybell.app.model.NewOrderDetails;
 import com.hungrybell.app.model.RepeatDiscount;
 
 @Repository("repeatDiscountDao")
@@ -27,4 +28,15 @@ public class RepeatDiscountDaoImpl implements RepeatDiscountDao {
 			return null;
 		}
 }
+	
+	public boolean getCheckExistsUser(int orderNumber) {
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(RepeatDiscount.class);
+		criteria.add(Restrictions.eq("order_number", orderNumber));
+		if (!criteria.list().isEmpty()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 }
