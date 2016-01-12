@@ -23,6 +23,21 @@ public class Setting implements Serializable {
 	
 	@Column(name = "delivery_distance")
 	private float delivery_distance;
+	
+	@Column(name = "free_delivery_minimum_order_value")
+	private int free_delivery_minimum_order_value;
+	
+	
+	
+
+	public int getFree_delivery_minimum_order_value() {
+		return free_delivery_minimum_order_value;
+	}
+
+	public void setFree_delivery_minimum_order_value(
+			int free_delivery_minimum_order_value) {
+		this.free_delivery_minimum_order_value = free_delivery_minimum_order_value;
+	}
 
 	public Long getId() {
 		return id;

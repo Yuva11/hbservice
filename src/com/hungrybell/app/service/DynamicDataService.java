@@ -2244,17 +2244,22 @@ public class DynamicDataService {
 						CheckDistanceResponseVO json_all_address = null;
 						ObjectMapper mapper = new ObjectMapper();
 						json_all_address = mapper.readValue(jsonAddress,CheckDistanceResponseVO.class);
-						double distanse = json_all_address.getRows()[0].getElements()[0].getDistance().getValue();
-						if (distanse > 4500.0) {
+						double distance = json_all_address.getRows()[0].getElements()[0].getDistance().getValue();
+						Setting setting=settingDao.getDeails();
+						Double km=0D;
+						if(setting!=null)
+							km=(Double.parseDouble(""+setting.getDelivery_distance()))*1000;
+						if (distance > km) {
 							status.setStatus("failue");
 						} else {
 							status.setStatus("success");
 							status.setDestination_addresses(json_all_address.getOrigin_addresses());
 							status.setOrigin_addresses(json_all_address.getOrigin_addresses());
 							status.setRows(json_all_address.getRows());
-						 	Setting setting=settingDao.getDeails();
+						 	
 							if (setting != null) {
 								status.setDeliveryCharge(""+ setting.getDelivery_charges());
+								status.setFree_delivery_minimum_order_value(setting.getFree_delivery_minimum_order_value());
 							}
 							int orderCounts=getOrderCount(Long.parseLong(userId));
 							if(orderCounts>0){

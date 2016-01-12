@@ -11,6 +11,7 @@ public class CheckDistanceResponseVO implements Serializable {
 
 	private Rows[] rows;
 	private String deliveryCharge;
+	private int free_delivery_minimum_order_value;
 	private String type;
 	private String value;
 	private String message;
@@ -19,6 +20,16 @@ public class CheckDistanceResponseVO implements Serializable {
 	
 	
 	
+	
+	public int getFree_delivery_minimum_order_value() {
+		return free_delivery_minimum_order_value;
+	}
+
+	public void setFree_delivery_minimum_order_value(
+			int free_delivery_minimum_order_value) {
+		this.free_delivery_minimum_order_value = free_delivery_minimum_order_value;
+	}
+
 	public Double getMinimumOrderValue() {
 		return minimumOrderValue;
 	}
