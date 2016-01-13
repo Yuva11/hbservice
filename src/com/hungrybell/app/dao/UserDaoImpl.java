@@ -88,8 +88,7 @@ public class UserDaoImpl implements UserDao {
 
 	// Add user/
 
-	public void addUser(Long id, String first_name, String email,
-			String mobile_number, String address, long cust_id, User user) {
+	public void addUser(Long id, String first_name, String email,String mobile_number, String address, long cust_id, User user) {
 		GetDateFromSystem getDateFromSystem = new GetDateFromSystem();
 
 		try {
@@ -99,9 +98,7 @@ public class UserDaoImpl implements UserDao {
 				user.setUsername("" + getDateFromSystem.getDateFromSystem());
 				user.setFirst_name(first_name);
 				user.setMobile_number(mobile_number);
-				System.out.println("kkkkkkkkkkkkk");
 				sessionFactory.getCurrentSession().saveOrUpdate(user);
-				System.out.println("kkkkkkkkkkkkk");
 			}
 
 		} catch (Exception e) {
@@ -173,8 +170,7 @@ public class UserDaoImpl implements UserDao {
 
 	public User getUserDetails(Long user_id) {
 		try {
-			Criteria criteria = sessionFactory.getCurrentSession()
-					.createCriteria(User.class);
+			Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
 			criteria.add(Restrictions.eq("id", user_id));
 			if (!criteria.list().isEmpty()) {
 				return (User) criteria.list().get(0);
@@ -183,7 +179,6 @@ public class UserDaoImpl implements UserDao {
 			}
 		} catch (Exception ek) {
 			ek.printStackTrace();
-
 		}
 		return null;
 	}
@@ -282,6 +277,16 @@ public class UserDaoImpl implements UserDao {
 		return null;
 	}
 
+	
+	public void updateUserDetails(String userid,String userName,String userEmail,String mobileNo) {
+		User user = getUserById(Long.parseLong(userid));
+		user.setDelete_status(0);
+		user.setFirst_name(userName);
+		user.setEmail(userEmail);
+		user.setMobile_number(mobileNo);
+		sessionFactory.getCurrentSession().saveOrUpdate(user);
+	}
+	
 	
 
 }

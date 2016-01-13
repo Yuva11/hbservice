@@ -15,11 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.hungrybell.app.date.GetDateFromSystem;
+import com.hungrybell.app.model.Deal;
 import com.hungrybell.app.model.DiscountCoupon;
 import com.hungrybell.app.model.FeedBack;
 import com.hungrybell.app.model.NewOrderDetails;
 import com.hungrybell.app.model.NewPayment;
 import com.hungrybell.app.model.OrderDetail;
+import com.hungrybell.app.model.Setting;
 import com.hungrybell.app.model.User;
 import com.hungrybell.app.vo.request.Orders;
 
@@ -199,6 +201,10 @@ public List<NewOrderDetails> getUserOrderCount(long user_id)
 	return null;
 }
 
-
-	
+	public NewOrderDetails getLastOrderAddress(Long userId) {
+		List <NewOrderDetails> orders=myOrders(userId);
+		if(orders!=null && orders.size()>0)
+			return orders.get(orders.size()-1);
+		return null;
+	}	
 }

@@ -27,7 +27,7 @@ public interface UserDao {
 	public void updateEmail(long userId,String email);
 	public void updateDevice(long userId,String deviceId);
 	
-	
+	public void updateUserDetails(String userid,String userName,String userEmail,String mobileNo);
 	
 
 

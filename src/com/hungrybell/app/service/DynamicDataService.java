@@ -6,15 +6,12 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -105,10 +102,9 @@ import com.hungrybell.app.vo.response.TagDealsListResponseVOAddToCart;
 import com.hungrybell.app.vo.response.TagListDealsPageVO;
 import com.hungrybell.app.vo.response.TagListDealsPageVOATC;
 import com.hungrybell.app.vo.response.TagVO;
-import com.hungrybell.app.vo.response.UserGemificationStatus;
+import com.hungrybell.app.vo.response.UpdateUserDetailsResponseVo;
+import com.hungrybell.app.vo.response.UserDetailsResponseVo;
 import com.hungrybell.util.DistanceCalculatorUtil;
-import com.hungrybell.util.HttpRequestor;
-import com.mysql.fabric.Response;
 
 @Service("dynamicDataService")
 @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -2772,6 +2768,41 @@ public class DynamicDataService {
 			return user_order_count.size();
 		}
 		return 0;
+	}
+	
+	public UserDetailsResponseVo getUserDetails(String userid)
+	{
+		UserDetailsResponseVo userDetailsResponseVo = new UserDetailsResponseVo();
+		User userDetails = userDao.getUserDetails(Long.parseLong(userid));
+		if (userDetails != null) {
+			userDetailsResponseVo.setUserId("" + userDetails.getId());
+			userDetailsResponseVo.setUserName(userDetails.getFirst_name());
+			userDetailsResponseVo.setUserEmail(userDetails.getEmail());
+			userDetailsResponseVo.setUser_Mob_No(userDetails.getMobile_number());
+			userDetailsResponseVo.setDeviceId(userDetails.getDevice_id());
+			userDetailsResponseVo.setBranchId(userDetails.getBranch_id());
+			NewOrderDetails lastOrder = newOrdersDetails.getLastOrderAddress(Long.parseLong(userid));
+			if (lastOrder != null) {
+				userDetailsResponseVo.setUserAddress(lastOrder.getDelivery_address());
+				userDetailsResponseVo.setLatitude("" + lastOrder.getLatitude());
+				userDetailsResponseVo.setLongitude("" + lastOrder.getLongitude());
+			}
+
+		}
+		return userDetailsResponseVo;
+	}
+	
+	public UpdateUserDetailsResponseVo getUpdateUserDetails(String userid,String userName,String userEmail,String mobileNo,String deviceId,String branchid,String address,String latitude,String longitude)
+	{
+		UpdateUserDetailsResponseVo updateUserDetailsResponseVo = new UpdateUserDetailsResponseVo();
+		try {
+			userDao.updateUserDetails(userid, userName, userEmail, mobileNo);
+			updateUserDetailsResponseVo.setStatus("success");
+		} catch (Exception el) {
+			updateUserDetailsResponseVo.setStatus("failure");
+		}
+	
+		return updateUserDetailsResponseVo;
 	}
 
  

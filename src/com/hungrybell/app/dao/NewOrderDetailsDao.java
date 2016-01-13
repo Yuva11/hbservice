@@ -26,6 +26,8 @@ public interface NewOrderDetailsDao
     public List<NewOrderDetails> getAllOrdersId(String userid);
     
     public List<NewOrderDetails> getUserOrderCount(long user_id);
+	public NewOrderDetails getLastOrderAddress(Long userId);
+    
     
     
 
