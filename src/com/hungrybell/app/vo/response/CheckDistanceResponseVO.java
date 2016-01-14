@@ -17,10 +17,39 @@ public class CheckDistanceResponseVO implements Serializable {
 	private String message;
 	private Double maximumDiscountValue;
 	private Double minimumOrderValue;
+	private String userName;
+	private String userMob;
+	private String userEmail;
 	
 	
 	
 	
+	
+	
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserMob() {
+		return userMob;
+	}
+
+	public void setUserMob(String userMob) {
+		this.userMob = userMob;
+	}
+
+	public String getUserEmail() {
+		return userEmail;
+	}
+
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
+	}
+
 	public int getFree_delivery_minimum_order_value() {
 		return free_delivery_minimum_order_value;
 	}
