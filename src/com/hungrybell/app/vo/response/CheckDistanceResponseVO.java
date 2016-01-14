@@ -20,12 +20,17 @@ public class CheckDistanceResponseVO implements Serializable {
 	private String userName;
 	private String userMob;
 	private String userEmail;
+	private String hbMoneyMaxLimit;
 	
 	
-	
-	
-	
-	
+	public String getHbMoneyMaxLimit() {
+		return hbMoneyMaxLimit;
+	}
+
+	public void setHbMoneyMaxLimit(String hbMoneyMaxLimit) {
+		this.hbMoneyMaxLimit = hbMoneyMaxLimit;
+	}
+
 	public String getUserName() {
 		return userName;
 	}

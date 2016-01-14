@@ -2265,13 +2265,14 @@ public class DynamicDataService {
 								status.setMessage(repeatDiscount.getCustome_message());
 								status.setMaximumDiscountValue(repeatDiscount.getMaximum_discount_value());
 								status.setMinimumOrderValue(repeatDiscount.getManimum_order_value());
-								User userDetails = userDao.getUserDetails(Long.parseLong(userId));
-								if (userDetails != null) {
-									status.setUserName(userDetails.getFirst_name());
-									status.setUserEmail(userDetails.getEmail());
-									status.setUserMob(userDetails.getMobile_number());
-								
-								}
+							}
+							User userDetails = userDao.getUserDetails(Long.parseLong(userId));
+							if (userDetails != null) {
+								status.setUserName(userDetails.getFirst_name());
+								status.setUserEmail(userDetails.getEmail());
+								status.setUserMob(userDetails.getMobile_number());
+								status.setHbMoneyMaxLimit("300");
+							
 							}
 						}
 					} catch (Exception ek) {
