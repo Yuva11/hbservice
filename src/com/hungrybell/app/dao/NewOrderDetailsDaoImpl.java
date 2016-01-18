@@ -204,7 +204,20 @@ public List<NewOrderDetails> getUserOrderCount(long user_id)
 	public NewOrderDetails getLastOrderAddress(Long userId) {
 		List <NewOrderDetails> orders=myOrders(userId);
 		if(orders!=null && orders.size()>0)
-			return orders.get(orders.size()-1);
+			return orders.get(0);
 		return null;
 	}	
+	
+	
+	public String getLastOrderLandmark(Long userId) {
+		List <NewOrderDetails> orders=myOrders(userId);
+		if(orders!=null && orders.size()>0)
+			
+			for(NewOrderDetails newOrders:orders)
+			{
+			        return newOrders.getLandmark();
+			}
+		return null;
+	}	
+	
 }

@@ -2270,9 +2270,9 @@ public class DynamicDataService {
 								status.setUserMob(userDetails.getMobile_number());
 							}
 							status.setHbMoneyMaxLimit("300");
-							NewOrderDetails lastOrder = newOrdersDetails.getLastOrderAddress(Long.parseLong(userId));
-							if (lastOrder != null) {
-								status.setCustomerAddressLandMark(lastOrder.getLandmark());
+							String lastOrderLandmark = newOrdersDetails.getLastOrderLandmark(Long.parseLong(userId));
+							if (lastOrderLandmark != null) {
+								status.setCustomerAddressLandMark(lastOrderLandmark);
 							}
 			
 						}
