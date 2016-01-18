@@ -74,8 +74,9 @@ public class AddToCartController {
 					addToCartRequestVO.getBody().getEmail(), addToCartRequestVO
 							.getBody().getDiscount_method(), addToCartRequestVO
 							.getBody().getDiscount_amount(), addToCartRequestVO
-							.getBody().getCoupon_code()
-
+							.getBody().getCoupon_code(),
+							addToCartRequestVO.getBody().getDelivery_date(),
+							addToCartRequestVO.getBody().getDelivery_time()
 			);
 
 			return status;

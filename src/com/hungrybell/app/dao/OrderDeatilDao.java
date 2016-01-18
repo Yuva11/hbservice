@@ -14,7 +14,7 @@ import com.hungrybell.app.model.User;
 public interface OrderDeatilDao {
 	
 	public void addOrderDetail(Double longitude,Double  latitude,String address,String landmark,String order_type,Long order_quantity,Double order_amount,Long deal_id,String delivery_status,String status,Long cust_id,String mobile_number,String first_name,String orderidcreate,Long merchant_branch_id);
-	public void addOrderDetailAddTOCart(Double longitude,Double  latitude,String address,String landmark,String order_type,Long order_quantity,Double order_amount,Long deal_id,String delivery_status,String status,Long cust_id,String mobile_number,String first_name,String orderidcreate,Long merchant_branch_id,String discount_method,double discount_amount,String coupon_code);
+	public void addOrderDetailAddTOCart(Double longitude,Double  latitude,String address,String landmark,String order_type,Long order_quantity,Double order_amount,Long deal_id,String delivery_status,String status,Long cust_id,String mobile_number,String first_name,String orderidcreate,Long merchant_branch_id,String discount_method,double discount_amount,String coupon_code,String delivery_date,String delivery_time);
 
 	
 	public void updateFeedback(String order_id);

@@ -762,7 +762,7 @@ public class DynamicDataService {
 			List<Orders> orders, String order_amount, String delivery_status,
 			String status, Long cust_id, String mobile_number,
 			String first_name, String useremailid, String discount_method,
-			double discount_amount, String coupon_code) {
+			double discount_amount, String coupon_code,String delivery_date,String delivery_time) {
 		Status status2 = new Status();
 		String merchantbranchemail = null;
 		String merchantname = null;
@@ -920,7 +920,7 @@ public class DynamicDataService {
 					Double.parseDouble(order_amount), deal_id, delivery_status,
 					status, cust_id, mobile_number, first_name, orderidcreate,
 					merchant_branch_id, discount_method, discount_amount,
-					coupon_code);
+					coupon_code,delivery_date,delivery_time);
 
 			for (Orders orders2 : orders) {
 				ordersDao.saveOrders(orderidcreate, orders2.getDeal_id(),
@@ -2257,11 +2257,14 @@ public class DynamicDataService {
 							int orderCounts=getOrderCount(Long.parseLong(userId));
 							if(orderCounts>0){
 								RepeatDiscount repeatDiscount = repeatDiscountDao.getRepeatDiscount(orderCounts+1);
+								if(repeatDiscount!=null)
+								{
 								status.setType(repeatDiscount.getType()+"");
 								status.setValue(repeatDiscount.getValue()+"");
 								status.setMessage(repeatDiscount.getCustome_message());
 								status.setMaximumDiscountValue(repeatDiscount.getMaximum_discount_value());
 								status.setMinimumOrderValue(repeatDiscount.getManimum_order_value());
+								}
 							}
 							User userDetails = userDao.getUserDetails(Long.parseLong(userId));
 							if (userDetails != null) {

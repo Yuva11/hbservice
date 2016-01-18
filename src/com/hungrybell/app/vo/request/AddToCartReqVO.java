@@ -31,9 +31,28 @@ public class AddToCartReqVO {
 	private double discount_amount;
 	
 	private String coupon_code;
+	private String delivery_date;
+	private String delivery_time;
 	
 	
 	
+	
+
+	public String getDelivery_date() {
+		return delivery_date;
+	}
+
+	public void setDelivery_date(String delivery_date) {
+		this.delivery_date = delivery_date;
+	}
+
+	public String getDelivery_time() {
+		return delivery_time;
+	}
+
+	public void setDelivery_time(String delivery_time) {
+		this.delivery_time = delivery_time;
+	}
 
 	public String getCoupon_code() {
 		return coupon_code;

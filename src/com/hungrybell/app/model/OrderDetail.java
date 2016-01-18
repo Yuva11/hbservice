@@ -64,6 +64,30 @@ public class OrderDetail implements Serializable {
 	@Column(name = "order_id")
 	private String order_id;
 	
+	@Column(name = "delivery_date")
+	private String delivery_date;
+	
+	@Column(name = "delivery_time")
+	private String delivery_time;
+	
+	
+	
+
+	public String getDelivery_date() {
+		return delivery_date;
+	}
+
+	public void setDelivery_date(String delivery_date) {
+		this.delivery_date = delivery_date;
+	}
+
+	public String getDelivery_time() {
+		return delivery_time;
+	}
+
+	public void setDelivery_time(String delivery_time) {
+		this.delivery_time = delivery_time;
+	}
 
 	public String getDiscount_method() {
 		return discount_method;

@@ -68,7 +68,7 @@ public class OrderDeatilDaoImpl implements OrderDeatilDao {
 			String delivery_status, String status, Long cust_id,
 			String mobile_number, String first_name, String orderidcreate,
 			Long merchant_branch_id, String discount_method,
-			double discount_amount, String coupon_code) {
+			double discount_amount, String coupon_code,String delivery_date,String delivery_time) {
 		OrderDetail orderDetail = new OrderDetail();
 		GetDateFromSystem getDateFromSystem = new GetDateFromSystem();
 		// System.ot.println();
@@ -90,6 +90,8 @@ public class OrderDeatilDaoImpl implements OrderDeatilDao {
 		orderDetail.setDiscount_amount(discount_amount);
 		orderDetail.setCoupan_code(coupon_code);
 		orderDetail.setFeedback_received("false");
+		orderDetail.setDelivery_date(delivery_date);
+		orderDetail.setDelivery_time(delivery_time);
 
 		sessionFactory.getCurrentSession().saveOrUpdate(orderDetail);
 
