@@ -1201,16 +1201,13 @@ public class DynamicDataService {
 				List<Long> ids = getMerchantBranchForLocation(location1.getId());
 				List<Deal> dealsListTotal = dealDao.getAllDealsForLocation(ids);
 				trendingtag = trendingTagDao.getAllTag(location1.getName(), 13);
-				recomendedtag = recommendedTagDao.getAllTagRecom(
-						location1.getName(), 13);
-				homePageResponseVo = prepareHomePageVO(null, null, null, ""
-						+ dealsListTotal.size(), null, trendingtag, null,
-						recomendedtag);
+				recomendedtag = recommendedTagDao.getAllTagRecom(location1.getName(), 13);
+				homePageResponseVo = prepareHomePageVO(null, null, null, ""	+ dealsListTotal.size(), null, trendingtag, null,recomendedtag);
 				homePageResponseVo.getResult().setLocation(location1.getName());
 				return homePageResponseVo;
 			} catch (Exception ek) {
 				String locationStr = getLocation(latitude, longitude);
-				System.out.print("---oyeee-1--" + locationStr);
+				System.out.print("---location name--1--" + locationStr);
 				List<MerchantBranch> mb = merchantBranchDao
 						.getMerchantBranchForNearestLocationList();
 				Iterator iterator = null;
@@ -2271,9 +2268,13 @@ public class DynamicDataService {
 								status.setUserName(userDetails.getFirst_name());
 								status.setUserEmail(userDetails.getEmail());
 								status.setUserMob(userDetails.getMobile_number());
-								status.setHbMoneyMaxLimit("300");
-							
 							}
+							status.setHbMoneyMaxLimit("300");
+							NewOrderDetails lastOrder = newOrdersDetails.getLastOrderAddress(Long.parseLong(userId));
+							if (lastOrder != null) {
+								status.setCustomerAddressLandMark(lastOrder.getLandmark());
+							}
+			
 						}
 					} catch (Exception ek) {
 						ek.printStackTrace();

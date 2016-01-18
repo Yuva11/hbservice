@@ -21,8 +21,19 @@ public class CheckDistanceResponseVO implements Serializable {
 	private String userMob;
 	private String userEmail;
 	private String hbMoneyMaxLimit;
+	private String customerAddressLandMark;
 	
 	
+	
+	
+	public String getCustomerAddressLandMark() {
+		return customerAddressLandMark;
+	}
+
+	public void setCustomerAddressLandMark(String customerAddressLandMark) {
+		this.customerAddressLandMark = customerAddressLandMark;
+	}
+
 	public String getHbMoneyMaxLimit() {
 		return hbMoneyMaxLimit;
 	}
