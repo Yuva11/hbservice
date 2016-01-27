@@ -29,10 +29,6 @@ public interface NewOrderDetailsDao
 	public NewOrderDetails getLastOrderAddress(Long userId);
 	public String getLastOrderLandmark(Long userId);
 	
-    
-    
-    
-
-	
-	
+	public List<NewOrderDetails> getDealIdStatusConfirmed(long dealId);
+		
 }

@@ -88,13 +88,12 @@ public int getDealOrderedCount(long dealId)
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(DealOrders.class);
 	    criteria.add(Restrictions.eq("deal_id",dealId));
 	    criteria.add(Restrictions.eq("deleted",0));
+	    int totalOrderCount=0;
 		if (!criteria.list().isEmpty()) {
-			int totalOrderCount=0;
 			List<DealOrders> dealOrders=criteria.list();
 			for (DealOrders dealOrder:dealOrders) {
 				totalOrderCount+=dealOrder.getQuantity();
 			}
-
 			return totalOrderCount;	
 		}
 	} catch (Exception el) {

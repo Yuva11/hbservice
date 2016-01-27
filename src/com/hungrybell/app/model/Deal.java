@@ -84,8 +84,17 @@ public class Deal implements Serializable {
 		@Column(name="deallike_count")
 		private int deallike_count;
 		
+		@Column(name="ordered_count")
+		private long orderedCount;
 		
 		
+		
+		public long getOrderedCount() {
+			return orderedCount;
+		}
+		public void setOrderedCount(long orderedCount) {
+			this.orderedCount = orderedCount;
+		}
 		public int getDealview_count() {
 			return dealview_count;
 		}

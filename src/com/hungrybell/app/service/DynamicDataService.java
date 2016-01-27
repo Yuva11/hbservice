@@ -489,12 +489,9 @@ public class DynamicDataService {
 		tagListDealsPageVO.setTotal_food_items(items);
 		List<DealVO> dealVOs = new ArrayList<DealVO>();
 		if (deals != null && deals.size() > 0) {
-			
 			for (Iterator iterator = deals.iterator(); iterator.hasNext();) {
 				Deal deal = (Deal) iterator.next();
 				DealVO dealVO = new DealVO();
-				int dealOrderedCount=ordersDao.getDealOrderedCount(deal.getId());
-				dealVO.setDealOrderedCount(dealOrderedCount);
 				dealVO.setDealId(deal.getId());
 				dealVO.setName(deal.getName());
 				dealVO.setDealPrice(deal.getDeal_price());
@@ -508,6 +505,7 @@ public class DynamicDataService {
 				dealVO.setDealview_count(deal.getDealview_count());
 				dealVO.setDetails(deal.getDetails());
 				dealVO.setOpening_quantity(deal.getOpening_quantity());
+				dealVO.setDealOrderedCount(deal.getOrderedCount());
 				// set merchant Details
 				MerchantBranch mb = getMerchantDetailForMerchantBranchId(deal
 						.getMerchantbranch_id());
@@ -2227,8 +2225,7 @@ public class DynamicDataService {
 		CheckDistanceResponseVO status = new CheckDistanceResponseVO();
 		try {
 			if (latitude != null && longitude != null) {
-				MerchantBranch fetch_Lot_long = merchantBranchDao
-						.getCheckDiscountCodeForMerchant(merchantbranch_id);
+				MerchantBranch fetch_Lot_long = merchantBranchDao.getCheckDiscountCodeForMerchant(merchantbranch_id);
 				GetAddressGoogleApi getAddressGoogleApi = new GetAddressGoogleApi();
 				if (fetch_Lot_long != null) {
 					fetch_Lot_long.getLongitude();
@@ -2315,8 +2312,7 @@ public class DynamicDataService {
 				body.setLongitude("" + order.getLongitude());
 				body.setDelivery_status(order.getDelivery_status());
 				// getOrdersDeatils
-				List<DealOrders> orderListFromDB = ordersDao.getOrder(order
-						.getOrder_id());
+				List<DealOrders> orderListFromDB = ordersDao.getOrder(order.getOrder_id());
 				com.hungrybell.app.vo.response.Orders dealOrdersArray[] = new com.hungrybell.app.vo.response.Orders[orderListFromDB
 						.size()];
 				int i = 0;

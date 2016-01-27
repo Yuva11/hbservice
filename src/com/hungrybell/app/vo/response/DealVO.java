@@ -56,13 +56,13 @@ public class DealVO implements Serializable {
 	private int deallike_count;
 	
 	private int opening_quantity;
-	private int dealOrderedCount;
+	private long dealOrderedCount;
 	
-	public int getDealOrderedCount() {
+	public long getDealOrderedCount() {
 		return dealOrderedCount;
 	}
 
-	public void setDealOrderedCount(int dealOrderedCount) {
+	public void setDealOrderedCount(long dealOrderedCount) {
 		this.dealOrderedCount = dealOrderedCount;
 	}
 
@@ -146,7 +146,8 @@ public class DealVO implements Serializable {
 
 	private Long availability;
 	private Double original_price;
-
+	
+	
 	public Double getOriginal_price() {
 		return original_price;
 	}

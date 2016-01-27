@@ -200,6 +200,24 @@ public List<NewOrderDetails> getUserOrderCount(long user_id)
 	}
 	return null;
 }
+public List<NewOrderDetails> getDealIdStatusConfirmed(long dealId)
+{
+	try {
+	
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(NewOrderDetails.class);
+	    criteria.add(Restrictions.eq("deal_id",dealId));
+	    criteria.add(Restrictions.eq("order_status","Confirmed"));
+		if (!criteria.list().isEmpty()) {
+			return criteria.list();
+		} else {
+			return null;
+		}
+	} catch (Exception el) {
+	}
+	return null;
+}
+
+
 
 	public NewOrderDetails getLastOrderAddress(Long userId) {
 		List <NewOrderDetails> orders=myOrders(userId);
