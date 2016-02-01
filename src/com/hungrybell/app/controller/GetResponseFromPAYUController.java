@@ -38,12 +38,10 @@ public class GetResponseFromPAYUController {
 		List<String> orderId=dynamicDataService.getNewOrderDetails();
 		String merchantTransactionIds="";
 		
-		System.out.println("Size:paymentId:"+paymentId.size());
 		for (String string : paymentId) {
 			System.out.println("Size:paymentId:"+string+"|");
 		}
 		
-		System.out.println("Size:orderId:"+orderId.size());
 		for (String string : orderId) {
 			System.out.print("Size:orderId:"+string+"|");
 		}

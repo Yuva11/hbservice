@@ -44,13 +44,8 @@ public class FeedBackController {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			feedbackRequestVO = mapper.readValue(input,	FeedbackRequestVO.class);
-
-			status=dynamicDataService.saveFeedback(feedbackRequestVO.getOrder_id(),feedbackRequestVO.getUser_id(),feedbackRequestVO.getRating(),feedbackRequestVO.getFeedback(),feedbackRequestVO.getTimestamp());
-			
-		
+			status=dynamicDataService.saveFeedback(feedbackRequestVO.getOrder_id(),feedbackRequestVO.getUser_id(),feedbackRequestVO.getRating(),feedbackRequestVO.getRating1(),feedbackRequestVO.getRating2(),feedbackRequestVO.getRating3(),feedbackRequestVO.getRating4(),feedbackRequestVO.getFeedback());
 			dynamicDataService.updateFeedBack(feedbackRequestVO.getOrder_id());
-					
-		
 			return status;
 
 		} catch (Exception ex) {

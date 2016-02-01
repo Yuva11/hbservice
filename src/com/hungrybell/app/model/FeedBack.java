@@ -26,15 +26,23 @@ public class FeedBack implements Serializable {
 	@Column(name = "user_id")
 	private String user_id;
 	
-	@Column(name = "rating")
-	private String rating;
+	
+	@Column(name = "rating1")
+	private String rating1;
+	
+	@Column(name = "rating2")
+	private String rating2;
+	
+	@Column(name = "rating3")
+	private String rating3;
+	
+	@Column(name = "rating4")
+	private String rating4;
 	
 	@Column(name = "feedback")
 	private String feedback;
 	
-	@Column(name = "timestamp")
-	private String timestamp;
-
+	
 	public Long getId() {
 		return id;
 	}
@@ -59,12 +67,37 @@ public class FeedBack implements Serializable {
 		this.user_id = user_id;
 	}
 
-	public String getRating() {
-		return rating;
+	
+	public String getRating1() {
+		return rating1;
 	}
 
-	public void setRating(String rating) {
-		this.rating = rating;
+	public void setRating1(String rating1) {
+		this.rating1 = rating1;
+	}
+
+	public String getRating2() {
+		return rating2;
+	}
+
+	public void setRating2(String rating2) {
+		this.rating2 = rating2;
+	}
+
+	public String getRating3() {
+		return rating3;
+	}
+
+	public void setRating3(String rating3) {
+		this.rating3 = rating3;
+	}
+
+	public String getRating4() {
+		return rating4;
+	}
+
+	public void setRating4(String rating4) {
+		this.rating4 = rating4;
 	}
 
 	public String getFeedback() {
@@ -75,17 +108,12 @@ public class FeedBack implements Serializable {
 		this.feedback = feedback;
 	}
 
-	public String getTimestamp() {
-		return timestamp;
-	}
 
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
-	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
 	
 
 	

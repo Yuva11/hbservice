@@ -1611,14 +1611,27 @@ public class DynamicDataService {
 	 * payuMoneyId); }
 	 */
 
-	public Status saveFeedback(String order_id, String user_id, String rating,
-			String feedback, String timestamp) {
+	public Status saveFeedback(String order_id, String user_id,String rating, String rating1,
+			String rating2,String rating3,String rating4,String feedback) {
 		Status status2 = new Status();
-		{
-			feedbackDao.addFeedback(order_id, user_id, rating, feedback,
-					timestamp);
+		
+			//New version
+			if(rating==null)
+				rating="0";
+			if(rating.isEmpty())
+				rating="0";
+			
+			if(rating.equals("0")){
+				//new version
+				feedbackDao.addFeedback(order_id, user_id, rating1,rating2,rating3,rating4,feedback);
+			}else{
+				//Old version
+			feedbackDao.addFeedback(order_id, user_id, rating,rating,rating,rating, feedback);
+				
+						
+			}
 
-		}
+		
 		status2.setCode(1);
 		status2.setMessage("FeedBack Inserted  Successfully");
 		return status2;
@@ -2365,6 +2378,8 @@ public class DynamicDataService {
 		return statusresponse;
 	}
 
+
+	
 	public Status getDeliveryTrackingRoadRunnrStatus(String order_id,
 			String status, String driver_name, String driver_number,
 			String timestamp) {
@@ -2401,6 +2416,44 @@ public class DynamicDataService {
 
 	}
 
+	public Status 	getDeliveryTrackingOpinioStatus(String order_id,
+			String status, String driver_name, String driver_number,
+			String timestamp) {
+		Status statusresponse = new Status();
+		try {
+			String customer_mob_no = null, order_id_our = null;
+			SpearSMSUtility smsUtility = new SpearSMSUtility();
+			NewOrderDetails user_id = newOrdersDetails
+					.getUserIdFormNeworderDetails(order_id);
+			if (user_id != null) {
+				order_id_our = user_id.getOrder_id();
+				User userdetails = userDao.getUserDetails(user_id.getUser_id());
+				if (userdetails != null) {
+					customer_mob_no = userdetails.getMobile_number();
+					String smstemplatefortracking = "Status of your order delivery - "
+							+ status
+							+ " Delivery boy "
+							+ driver_name
+							+ " Contact Number "
+							+ driver_number
+							+ " Hungry Bells.";
+					smsUtility.process_sms(customer_mob_no,
+							smstemplatefortracking, "", "", "");
+				}
+			}
+			orderDeatilDao.updateDeliveryTrackingRaodRunnr(order_id, status,
+					driver_name, driver_number);
+			statusresponse.setCode(1);
+			statusresponse.setMessage("Successfully Updated Delivery Status");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return statusresponse;
+
+	}
+
+
+	
 	public List<String> getNewPayDetails() {
 		ArrayList<String> newPaymentDetails = new ArrayList<String>();
 		List<NewOrderDetails> iniciatedDetails = newOrdersDetails

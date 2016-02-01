@@ -9,7 +9,7 @@ import com.hungrybell.app.vo.request.PayUmoneyBean;
 public interface FeedBackDao {
 	
 
-	public void addFeedback(String order_id,String user_id,String rating,String feedback,String timestamp) ;
+	public void addFeedback(String order_id,String user_id,String rating1,String rating2,String rating3,String rating4,String feedback) ;
 
 
 

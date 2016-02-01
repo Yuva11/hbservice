@@ -20,27 +20,22 @@ public class FeedBackDaoImpl implements FeedBackDao
 	
 	
 
-	public void addFeedback(String order_id, String user_id, String rating,	String feedback, String timestamp) 
+	public void addFeedback(String order_id, String user_id, String rating1,
+			String rating2, String rating3,
+			String rating4,String feedback) 
 	{
 
 		FeedBack feedBack=new FeedBack();
-		
 		feedBack.setOrder_id(order_id);
 		feedBack.setUser_id(user_id);
-        feedBack.setRating(rating);
-        feedBack.setFeedback(feedback);
-       feedBack.setTimestamp(timestamp);
-       
-       sessionFactory.getCurrentSession().saveOrUpdate(feedBack);
-	
+		feedBack.setRating1(rating1);
+		feedBack.setFeedback(feedback);
+		feedBack.setRating2(rating2);
+		feedBack.setRating3(rating3);
+		feedBack.setRating4(rating4);
+		sessionFactory.getCurrentSession().saveOrUpdate(feedBack);
+
 	}
 
-
-
-	
-	
-	
-
-	
 
 }
