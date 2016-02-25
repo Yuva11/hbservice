@@ -1,30 +1,19 @@
 package com.hungrybell.app.dao;
 
-import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.client.RestTemplate;
 
 import com.hungrybell.app.date.GetDateFromSystem;
-import com.hungrybell.app.model.Deal;
-import com.hungrybell.app.model.DealUserFavourites;
-import com.hungrybell.app.model.DiscountCoupon;
-import com.hungrybell.app.model.FeedBack;
 import com.hungrybell.app.model.NewOrderDetails;
 import com.hungrybell.app.model.OrderDetail;
 
@@ -80,7 +69,6 @@ public class OrderDeatilDaoImpl implements OrderDeatilDao {
 		orderDetail.setOrder_quantity(order_quantity);
 		orderDetail.setOrder_amount(order_amount);
 		orderDetail.setDeal_id(deal_id);
-		orderDetail.setOrder_date_time(getDateFromSystem.getDateFromSystem());
 		orderDetail.setDelivery_status("Received");
 		orderDetail.setOrder_status("Received");
 		orderDetail.setUser_id(cust_id);
@@ -90,9 +78,22 @@ public class OrderDeatilDaoImpl implements OrderDeatilDao {
 		orderDetail.setDiscount_amount(discount_amount);
 		orderDetail.setCoupan_code(coupon_code);
 		orderDetail.setFeedback_received("false");
-		orderDetail.setDelivery_date(delivery_date);
-		orderDetail.setDelivery_time(delivery_time);
-
+		orderDetail.setOrder_date_time(getDateFromSystem.getDateFromSystem());
+		
+		if(delivery_date==null || delivery_date.isEmpty()){
+			orderDetail.setDelivery_time(getDateFromSystem.getDateFromSystem());
+		}else{
+			String dateAndTime = "" + delivery_date +" "+ delivery_time;
+			Date date = null;
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			try {
+				date = df.parse(dateAndTime);
+				orderDetail.setDelivery_time(date);
+			} catch (Exception ex) {
+				System.out.println(ex);
+			}
+			
+		}
 		sessionFactory.getCurrentSession().saveOrUpdate(orderDetail);
 
 	}

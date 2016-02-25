@@ -2,6 +2,7 @@ package com.hungrybell.app.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -63,29 +64,15 @@ public class OrderDetail implements Serializable {
 
 	@Column(name = "order_id")
 	private String order_id;
-	
-	@Column(name = "delivery_date")
-	private String delivery_date;
-	
+
 	@Column(name = "delivery_time")
-	private String delivery_time;
-	
-	
-	
+	private Date delivery_time;
 
-	public String getDelivery_date() {
-		return delivery_date;
-	}
-
-	public void setDelivery_date(String delivery_date) {
-		this.delivery_date = delivery_date;
-	}
-
-	public String getDelivery_time() {
+	public Date getDelivery_time() {
 		return delivery_time;
 	}
 
-	public void setDelivery_time(String delivery_time) {
+	public void setDelivery_time(Date delivery_time) {
 		this.delivery_time = delivery_time;
 	}
 
@@ -109,21 +96,12 @@ public class OrderDetail implements Serializable {
 	private String discount_method;
 	@Column(name = "coupan_code")
 	private String coupan_code;
-	
 
 	@Column(name = "discount_amount")
 	private double discount_amount;
-	
+
 	@Column(name = "feedback_received")
 	private String feedback_received;
-	
-	
-	
-	
-	
-	
-	
-	
 
 	public String getCoupan_code() {
 		return coupan_code;
@@ -264,9 +242,5 @@ public class OrderDetail implements Serializable {
 	public void setFeedback_received(String feedback_received) {
 		this.feedback_received = feedback_received;
 	}
-
-
-
-	
 
 }

@@ -87,8 +87,19 @@ public class Deal implements Serializable {
 		@Column(name="ordered_count")
 		private long orderedCount;
 		
+		@Column(name="category_id")
+	    long category_id;
 		
 		
+		
+		
+		
+		public long getCategory_id() {
+			return category_id;
+		}
+		public void setCategory_id(long category_id) {
+			this.category_id = category_id;
+		}
 		public long getOrderedCount() {
 			return orderedCount;
 		}

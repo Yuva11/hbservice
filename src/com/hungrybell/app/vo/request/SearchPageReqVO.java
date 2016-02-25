@@ -8,7 +8,22 @@ public class SearchPageReqVO implements Serializable{
 	String longitude;
 	String searchString;
 	String user_id;
+	String pageNumber;
+	String pageSize;
 	
+	
+	public String getPageNumber() {
+		return pageNumber;
+	}
+	public void setPageNumber(String pageNumber) {
+		this.pageNumber = pageNumber;
+	}
+	public String getPageSize() {
+		return pageSize;
+	}
+	public void setPageSize(String pageSize) {
+		this.pageSize = pageSize;
+	}
 	public String getLatitude() {
 		return latitude;
 	}

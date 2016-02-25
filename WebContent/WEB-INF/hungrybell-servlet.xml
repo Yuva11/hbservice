@@ -115,6 +115,8 @@
 				<value>com.hungrybell.app.model.City</value>
 				<value>com.hungrybell.app.model.Setting</value>
 				<value>com.hungrybell.app.model.RepeatDiscount</value>
+				<value>com.hungrybell.app.model.Category</value>
+				
 	
 			</list>
 		</property>

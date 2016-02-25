@@ -16,14 +16,15 @@ public interface DealDao {
 	
 	public List<Deal> getNearestAllDealsForBranchIds(List<Long> locationIds);
 	public List<Deal> getAllDealsForLocation(List<Long> locationIds);
-	public List<Deal> getAllDealsForBranchIdsAndTag(List<Long> branchIds,String tagName);
+	public List<Deal> getDealIdForLocation(List<Long> locationIds);
+	public List<Deal> getAllDealsForBranchIdsAndTag(List<Long> branchIds,String tagName,String pageNumber ,String pageSize );
+	public List<Deal> getCategoryDealList(List<Long> branchIds,long categoryId);
 	public List<Deal> getAllDealsForBranchIdsAndSearchString(List<Long> branchIds,String searchString);
 	public List<Deal> getAllDealsForBranchIdsAndMultipleSearchString(List<Long> branchIds,String searchString);
 	public List<Deal> getAllRecommendedDealsForLocation(List<Long> locationIds);
 	public Deal getDealForDealId(Long dealId);
 	public Deal updateDealUserActionForDealId(Long dealId,String action);
-	public List<Deal> getNearestAllDealsForBranchIdsAndTag(
-			List<Long> branchIds, String tagName);
+	public List<Deal> getNearestAllDealsForBranchIdsAndTag(List<Long> branchIds, String tagName,String pageNumber ,String pageSize );
 	public List<Deal> getAllDeals();
 	
 	public List<Deal> getAllDealsForBranchIdsAndTagAddToCart(Long branchIds);

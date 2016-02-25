@@ -99,6 +99,24 @@ public class DealDaoImpl implements DealDao {
 		}
 		return null;
 	}
+	public List<Deal> getDealIdForLocation(List<Long> locationIds) {
+		try {
+			GetDateFromSystem getDateFromSystem = new GetDateFromSystem();
+			Criteria criteria = sessionFactory.getCurrentSession()	.createCriteria(Deal.class);
+			criteria.add(Restrictions.in("merchantbranch_id", locationIds));
+			criteria.add(Restrictions.isNotNull("tag"));
+			criteria.add(Restrictions.eq("status", "PUBLISHED"));
+			if (!criteria.list().isEmpty()) {
+				return criteria.list();
+			} else {
+				return null;
+			}
+		} catch (Exception el) {
+
+		}
+		return null;
+	}
+	
 
 	public List<Deal> getAllDealsForLocation2() {
 		try {
@@ -142,12 +160,17 @@ public class DealDaoImpl implements DealDao {
 	}
 
 	// tagListapi(http://testservice.hungrybells.in:9091/HBAppService//tagListDealsjson.do)
-	public List<Deal> getAllDealsForBranchIdsAndTag(List<Long> branchIds,
-			String tagName) {
+	public List<Deal> getAllDealsForBranchIdsAndTag(List<Long> branchIds,String tagName,String pageNumber ,String pageSize) {
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(
 				Deal.class);
 		criteria.add(Restrictions.in("merchantbranch_id", branchIds));
 		criteria.add(Restrictions.isNotNull("tag"));
+		if (pageNumber != null) {
+			  int pageNumber1 =Integer.parseInt(pageNumber);
+			   int pageSize1 = Integer.parseInt(pageSize);
+			criteria.setFirstResult((pageNumber1 - 1) * pageSize1);
+		    criteria.setMaxResults(pageSize1);
+		}
 		criteria.add(Restrictions.eq("status", "PUBLISHED"));
 		criteria.add(Restrictions.like("tag", tagName, MatchMode.ANYWHERE));
 		if (!criteria.list().isEmpty()) {
@@ -156,6 +179,20 @@ public class DealDaoImpl implements DealDao {
 			return null;
 		}
 	}
+	public List<Deal> getCategoryDealList(List<Long> branchIds,long categoryId) {
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(
+				Deal.class);
+		criteria.add(Restrictions.in("merchantbranch_id", branchIds));
+		criteria.add(Restrictions.eq("category_id", categoryId));
+		criteria.add(Restrictions.isNotNull("tag"));
+		criteria.add(Restrictions.eq("status", "PUBLISHED"));
+		if (!criteria.list().isEmpty()) {
+			return criteria.list();
+		} else {
+			return null;
+		}
+	}
+	
 
 	public List<Deal> getAllDealsForBranchIdsAndTagAddToCart(Long branchIds) {
 		try {
@@ -286,13 +323,19 @@ public class DealDaoImpl implements DealDao {
 	}
 
 	public List<Deal> getNearestAllDealsForBranchIdsAndTag(
-			List<Long> branchIds, String tagName) {
+			List<Long> branchIds, String tagName,String pageNumber ,String pageSize) {
 		try {
 			Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Deal.class);
 			criteria.add(Restrictions.in("merchantbranch_id", branchIds));
 			criteria.add(Restrictions.isNotNull("tag"));
 			criteria.add(Restrictions.eq("status", "PUBLISHED"));
-			criteria.add(Restrictions.like("tag", tagName.trim(), MatchMode.ANYWHERE));
+			if (pageNumber != null) {
+				  int pageNumber1 =Integer.parseInt(pageNumber);
+				   int pageSize1 = Integer.parseInt(pageSize);
+				criteria.setFirstResult((pageNumber1 - 1) * pageSize1);
+			    criteria.setMaxResults(pageSize1);
+			}
+		    criteria.add(Restrictions.like("tag", tagName.trim(), MatchMode.ANYWHERE));
 			if (!criteria.list().isEmpty() && criteria.list().size() > 0) {
 				return criteria.list();
 			} else 

@@ -76,7 +76,7 @@ public class GetResponseFromPAYUController {
 	    }
 	    catch(Exception ek)
 	    {
-	    	ek.printStackTrace();
+	  //  	ek.printStackTrace();
 	    }
 	    
 	    
@@ -104,7 +104,7 @@ public class GetResponseFromPAYUController {
 			
 
 		} catch (Exception e) {
-			e.printStackTrace();
+	//		e.printStackTrace();
 		}
 		
 	}
