@@ -617,8 +617,7 @@ public class DynamicDataService {
 		GetAddressGoogleApi getAddressGoogleApi = new GetAddressGoogleApi();
 		GetLocationAddressGoogleApi getLocationAddressGoogleApi = new GetLocationAddressGoogleApi();
 		try {
-			String address1 = getLocationAddressGoogleApi.getLocationAddress(
-					latitude, longitude);
+			String address1 = getLocationAddressGoogleApi.getLocationAddress(latitude, longitude);
 			GoogleLocationResponseVO google_location = null;
 			ObjectMapper mapper1 = new ObjectMapper();
 			google_location = mapper1.readValue(address1,
@@ -1193,8 +1192,7 @@ public class DynamicDataService {
 
 	}
 
-	public HomePageResponseVO getAllHomePageData(String latitude,
-			String longitude) {
+	public HomePageResponseVO getAllHomePageData(String latitude,String longitude) {
 		HomePageResponseVO homePageResponseVo = new HomePageResponseVO();
 		Status status = new Status();
 		if (latitude.isEmpty() && longitude.isEmpty()) {
@@ -2888,8 +2886,7 @@ public class DynamicDataService {
 			List<Long> kitchensIds = getMerchantBranchForLocation(location1
 					.getId());
 			if (kitchensIds != null) {
-				List<Deal> dealsListTotal = dealDao
-						.getDealIdForLocation(kitchensIds);
+				List<Deal> dealsListTotal = dealDao.getDealIdForLocation(kitchensIds);
 				if (dealsListTotal != null) {
 					List<Category> categoryList = null;
 					for (Deal deal : dealsListTotal) {
@@ -2909,7 +2906,7 @@ public class DynamicDataService {
 		return null;
 	}
 	
-	public TagDealsListResponseVO getCategoryDealDetails(String latitude, String longitude,String categoryId) {
+	public TagDealsListResponseVO getCategoryDealDetails(String latitude, String longitude,String categoryName) {
 		TagDealsListResponseVO tagDealsListResponseVO = null;
 		try {
 			String location = getLocation(latitude, longitude);
@@ -2917,7 +2914,8 @@ public class DynamicDataService {
 			long locationId = location1.getId();
 			List<Long> branchIds = getMerchantBranchForLocation(locationId);
 			List<Deal> dealsListTotal = dealDao.getAllDealsForLocation(branchIds);
-			List<Deal> categoryDealsList = dealDao.getCategoryDealList(branchIds,Long.parseLong(categoryId));
+			Category categoryId=categoryDao.getCategoryId(categoryName);
+			List<Deal> categoryDealsList = dealDao.getCategoryDealList(branchIds,categoryId.getId());
 	  		tagDealsListResponseVO = prepareTagDealsListVO(categoryDealsList, ""+ dealsListTotal.size(), latitude, longitude);
 			return tagDealsListResponseVO;
 		} catch (Exception ek) {

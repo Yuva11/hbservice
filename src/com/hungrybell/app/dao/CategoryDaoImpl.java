@@ -30,5 +30,23 @@ SessionFactory sessionFactory=null;
 		return null;
 	}
 	}
+	
+	
+	
+	public Category getCategoryId(String categoryName) {
+		
+	Criteria criteria =sessionFactory.getCurrentSession().createCriteria(Category.class);
+	criteria.add(Restrictions.eq("name", categoryName));
+	if(criteria.list()!=null)
+	{
+		return (Category) criteria.uniqueResult();	
+	}
+	else
+	{
+		return null;
+	}
+	}
+	
+	
 
 }

@@ -25,8 +25,7 @@ public class CategoryController {
 		CategoryRequestVO categoryRequestVO = null;
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
-			categoryRequestVO = objectMapper.readValue(input,
-					CategoryRequestVO.class);
+			categoryRequestVO = objectMapper.readValue(input,CategoryRequestVO.class);
 			categoryList = dynamicService.getCategoryList(
 					categoryRequestVO.getLatitude(),
 					categoryRequestVO.getLongitude(),

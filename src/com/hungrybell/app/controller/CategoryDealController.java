@@ -40,7 +40,7 @@ public class CategoryDealController {
 			return dynamicDataService.getCategoryDealDetails(
 					categoryDealRequestVO.getLatitude(),
 					categoryDealRequestVO.getLongitude(),
-					categoryDealRequestVO.getCategory_Id()
+					categoryDealRequestVO.getCategory_name()
 					);
 	
 		} catch (JsonParseException e) {

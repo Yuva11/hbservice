@@ -6,4 +6,8 @@ import com.hungrybell.app.model.Category;
 
 public interface CategoryDao {
 	public Category getCategory(long categoryId);
+	
+	public Category getCategoryId(String categoryName);
+	
+	
 }

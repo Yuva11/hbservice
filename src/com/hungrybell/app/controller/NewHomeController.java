@@ -52,8 +52,7 @@ public class NewHomeController {
 		HomePageRequestVO homePageRequestVO = null;
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			homePageRequestVO = mapper
-					.readValue(input, HomePageRequestVO.class);
+			homePageRequestVO = mapper.readValue(input, HomePageRequestVO.class);
 			User user = null;
 			String userId = homePageRequestVO.getBody().getUser_id();
 			String deviceId = homePageRequestVO.getBody().getDevice_id();
